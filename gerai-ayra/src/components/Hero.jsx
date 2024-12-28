@@ -11,7 +11,7 @@ const Hero = () => {
                     <p className='w-8 md:w-11 h-[2px] bg-[#f9a8d4]' ></p>
                     <p className='font-medium text-md sm:text-xs md:text-base' >OUR BESTSELLERS</p>
                 </div>
-                <h1 className='prata-regular lg:text-2xl sm:py-3 min-[320px]:text-[1px] lg:text-xl-5xl leading-relaxed ' >Koleksi Baju Terbaik <br /> untuk Wanita, Lelaki dan Anak-Anak</h1>
+                <h1 className='prata-regular lg:text-2xl sm:py-3 min-[320px]:text-[21px] lg:text-xl-5xl leading-relaxed ' >Koleksi Baju Terbaik <br /> untuk Wanita, Lelaki dan Anak-Anak</h1>
                 <div className='flex items-center gap-2' >
                     <p className="font-semibold text-sm md:text-base sm:text-sm">Beli Sekarang!</p>
                     <p className='w-8 md:w-11 h-[2px] bg-[#f9a8d4]' ></p>
