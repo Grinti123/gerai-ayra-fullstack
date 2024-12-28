@@ -16,7 +16,11 @@ connectCloudinary()
 
 // Middlewares
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: '*',  // For development. In production, specify your frontend domain
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+  }));
 
 // API Endpoints
 app.use('/api/user', userRouter)
