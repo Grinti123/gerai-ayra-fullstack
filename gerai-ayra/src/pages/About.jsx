@@ -13,10 +13,9 @@ const About = () => {
       <div className='my-10 flex flex-col md:flex-row gap-16'>
           <img className='w-full md:max-w-[450px]' src={assets.about_img} alt="" />
           <div className='flex flex-col justify-center gap-6 md:w-2/4 text-gray-600'>
-            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Atque placeat fugiat aliquid quas nam ullam maiores similique deserunt laudantium consequuntur!</p>
-            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vel voluptatibus totam maxime deserunt eius earum commodi. Voluptatem repellat porro laboriosam.</p>
+            <p>Distributor resmi aneka fashion anak dan dewasa. Kami membuka pluang usaha dirumah dengan menjadi reseller</p>
             <b className='text-gray-800'>Our Mission</b>
-            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corporis, nemo atque asperiores nisi soluta distinctio nobis, quo in vero accusantium quidem perspiciatis voluptatum eaque amet. Obcaecati dolorem recusandae doloremque aliquam sint illo, accusantium, laborum ex nihil excepturi totam perspiciatis deserunt!</p>
+            <p>hadir sebagai destinasi fashion terpercaya untuk keluarga modern Indonesia. Dengan koleksi pakaian berkualitas yang mencakup berbagai usia dan gaya, kami berkomitmen menghadirkan pengalaman berbelanja yang menyenangkan dengan harga terjangkau. Setiap item di toko kami dipilih dengan teliti untuk memastikan kenyamanan dan kualitas terbaik bagi customer kami. Dari pakaian kasual hingga formal, Gerai Ayra adalah pilihan tepat untuk melengkapi kebutuhan fashion Anda.</p>
           </div>
       </div>
 
