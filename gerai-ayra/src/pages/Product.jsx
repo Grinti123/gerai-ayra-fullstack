@@ -47,14 +47,6 @@ const Product = () => {
         {/* Product Info */}
         <div className='flex-1'>
             <h1 className='font-medium text-2xl mt-2'>{productData.name}</h1>
-            <div className='flex item-center gap-1 mt-2'>
-              <img src={assets.star_icon} alt="" className="w-35" />
-              <img src={assets.star_icon} alt="" className="w-35" />
-              <img src={assets.star_icon} alt="" className="w-35" />
-              <img src={assets.star_icon} alt="" className="w-35" />
-              <img src={assets.star_dull_icon} alt="" className="w-35" />
-              <p className='pl-2'>(122)</p>
-            </div>
             <p className='mt-5 text-3xl font-medium'>{currency}{productData.price}</p>
             <p className='mt-5 text-gray-500 md:w-4/5'>{productData.description}</p>
             <div className='dlex flex-col gap-4 my-8'>
@@ -76,19 +68,6 @@ const Product = () => {
       </div>
 
       {/* Description & Review Section */}
-        <div className='mt-20'> 
-              <div className='flex'>
-                <b className='border px-5 py-3 text-sm'>Description</b>
-                <p className='border px-5 py-3 text-sm'>Reviews (122)</p>
-              </div>
-              <div className='flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500'>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam, in. Ipsam libero aliquam, a quam consequuntur animi qui voluptas molestias. Soluta quo labore maxime voluptatibus ad quae, quibusdam aliquid minima.
-                Officiis dolores et ipsum illo asperiores dicta? Rem magni doloribus quis quas neque natus cupiditate excepturi porro molestiae debitis dicta quod tempora amet nulla perspiciatis sapiente, maiores at, tenetur asperiores.
-                Temporibus delectus reprehenderit sint velit nihil dolorum vitae, dolor laboriosam porro. Quod, non possimus. Consectetur quos soluta deleniti quaerat, id reiciendis nemo sequi non aperiam obcaecati, officiis cum quasi odit.</p>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Natus, quas, eveniet sapiente nobis id accusantium quam, quibusdam minus minima fuga eius laboriosam adipisci blanditiis accusamus iste quisquam explicabo! Soluta, iusto.
-                Ipsam, magni. Deserunt velit libero ab molestias fugit eligendi alias! Dolore nam corrupti numquam blanditiis earum iusto debitis expedita eius temporibus id laborum fugit repellat voluptate delectus ipsum, quaerat ullam!</p>
-              </div>
-        </div>
 
       {/* Display Related Products */}
 
