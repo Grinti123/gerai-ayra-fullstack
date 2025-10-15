@@ -646,6 +646,7 @@ flowchart TD
 → Sequence Flow
 ➤ Message Flow
 -- Association
+```
 
 # Use Case Diagram - Sistem E-commerce Gerai Ayra
 
@@ -729,12 +730,12 @@ graph TD
         UE1[Proses Pembayaran]
         UE2[Kirim Webhook]
         UE3[Kirim Notifikasi Pembayaran]
-        UE4[Accept Order]
-        UE5[Pack Products]
-        UE6[Ship Products]
-        UE7[Delivery Confirmation]
+        UE4[Terima Pesanan]
+        UE5[Pack Produk]
+        UE6[Kirim Produk]
+        UE7[Konfirmasi Pengiriman]
         UE8[Upload Gambar]
-        UE9[Optimize Gambar]
+        UE9[Optimasi Gambar]
         UE10[Generate Thumbnail]
     end
 
@@ -787,12 +788,12 @@ graph TD
     CL --> UE9
     CL --> UE10
 
-    classDef actor fill:#e1f5fe,stroke:#01579b
+    classDef aktor fill:#e1f5fe,stroke:#01579b
     classDef usecase fill:#c8e6c9,stroke:#1b5e20
     classDef include fill:#fff3e0,stroke:#f57c00
     classDef extend fill:#fce4ec,stroke:#c2185b
 
-    class C,A,PG,L,CL actor
+    class C,A,PG,L,CL aktor
     class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13,UC14,UC15,UC16,UA1,UA2,UA3,UA4,UA5,UA6,UA7,UA8,UA9,UA10,UA11,UA12,UA13,UA14,UE1,UE2,UE3,UE4,UE5,UE6,UE7,UE8,UE9,UE10 usecase
 ```
 
@@ -998,21 +999,20 @@ graph TD
 
 ## Summary Use Case Analysis
 
-### **Strength of Current Design**
-- Clear separation antara customer dan admin workflows
-- Appropriate integration dengan third-party services
-- Comprehensive coverage dari browsing sampai delivery tracking
-- Proper authentication dan authorization flows
+### **Kekuatan Desain Saat Ini**
+- Pemisahan yang jelas antara workflows customer dan admin
+- Integrasi yang tepat dengan layanan third-party
+- Coverage komprehensif dari browsing sampai delivery tracking
+- Flows authentication dan authorization yang proper
 
-### **Potential Improvements**
-- Add "Forgot Password" use case untuk customer
-- Include "Bulk Product Import" untuk admin efficiency
-- Add "Social Login" untuk easier customer registration
-- Consider "Live Chat Support" use case untuk customer service
+### **Perbaikan Potensial**
+- Tambahkan use case "Forgot Password" untuk customer
+- Sertakan "Bulk Product Import" untuk efisiensi admin
+- Tambahkan "Social Login" untuk registrasi yang lebih mudah
+- Pertimbangkan use case "Live Chat Support" untuk customer service
 
-### **Business Impact**
-- **Customer Journey**: Streamlined dari discovery sampai delivery
-- **Admin Efficiency**: Centralized management untuk semua operations
-- **System Scalability**: Extensible design untuk future features
-- **Partner Integration**: Robust API integration dengan payment/logistics/cloud providers
-
+### **Dampak Bisnis**
+- **Perjalanan Customer**: Dioptimalkan dari discovery sampai delivery
+- **Efisiensi Admin**: Management terpusat untuk semua operations
+- **Skalabilitas Sistem**: Desain extensible untuk fitur masa depan
+- **Integrasi Partner**: API integration yang robust dengan payment/logistics/cloud providers
