@@ -1,29 +1,23 @@
-# Gerai Ayra Fullstack Application Flowchart
+# Diagram Alir Aplikasi Gerai Ayra Fullstack
 
-## High-Level Architecture
+## Arsitektur Tingkat Tinggi
 
 ```mermaid
 graph TD
-    A[ User ] --> B[Frontend - Gerai Ayra]
-    A --> C[Admin Panel]
+    A[ Pengguna ] --> B[Frontend - Gerai Ayra]
+    A --> C[Panel Admin]
     B --> D[Backend API]
     C --> D
-    D --> E[MongoDB Database]
-    D --> F[Cloudinary for Images]
-    D --> G[Payment Gateways<br/>Midtrans/Stripe/Razorpay]
+    D --> E[Database MongoDB]
+    D --> F[Cloudinary untuk Gambar]
+    D --> G[Gateway Pembayaran<br/>Midtrans/Stripe/Razorpay]
 
-    classDef frontend fill:#e1f5fe
-    classDef backend fill:#f3e5f5
-    classDef admin fill:#fff3e0
-    classDef external fill:#e8f5e8
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class B frontend
-    class C admin
-    class D backend
-    class E,F,G external
+    class A,B,C,D,E,F,G default
 ```
 
-## Backend API Structure
+## Struktur API Backend
 
 ```mermaid
 graph TB
@@ -54,18 +48,12 @@ graph TB
         BB[multer.js - File Upload]
     end
 
-    classDef route fill:#bbdefb
-    classDef controller fill:#c8e6c9
-    classDef model fill:#ffcdd2
-    classDef middleware fill:#fff9c4
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class L,N,P,R,T route
-    class I controller
-    class V,W,X,Y model
-    class Z,AA,BB middleware
+    class H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,BB default
 ```
 
-## Database Schema Relations
+## Relasi Skema Database
 
 ```mermaid
 erDiagram
@@ -119,79 +107,73 @@ erDiagram
     }
 ```
 
-## Application Flow - User Journey
+## Alur Aplikasi - Perjalanan Pengguna
 
 ```mermaid
 flowchart TD
-    Start([User Visits Site]) --> LoginCheck{Logged In?}
+    Start([Pengguna Mengunjungi Situs]) --> LoginCheck{Sudah Masuk?}
 
-    LoginCheck -->|No| Register[Register Account]
-    Register --> Login[Login]
-    LoginCheck -->|Yes| Browse[Browse Products]
+    LoginCheck -->|Tidak| Register[Daftarkan Akun]
+    Register --> Login[Masuk]
+    LoginCheck -->|Ya| Browse[Jelajahi Produk]
 
     Login --> Browse
 
-    Browse --> Search[Use Search/Filter]
-    Search --> ViewProduct[View Product Details]
+    Browse --> Search[Gunakan Cari/Filter]
+    Search --> ViewProduct[Lihat Detail Produk]
     Browse --> ViewProduct
 
-    ViewProduct --> AddToCart[Add to Cart]
-    AddToCart --> CartCheck{More Items?}
-    CartCheck -->|Yes| Browse
-    CartCheck -->|No| Checkout[Proceed to Checkout]
+    ViewProduct --> AddToCart[Tambah ke Keranjang]
+    AddToCart --> CartCheck{Lebih Banyak Item?}
+    CartCheck -->|Ya| Browse
+    CartCheck -->|Tidak| Checkout[Lanjutkan ke Checkout]
 
-    Checkout --> Address[Enter Shipping Address]
-    Address --> PaymentMethod{Choose Payment}
+    Checkout --> Address[Masukkan Alamat Pengiriman]
+    Address --> PaymentMethod[Pilih Pembayaran]
 
-    PaymentMethod -->|COD| PlaceOrderCOD[Place Cash on Delivery Order]
-    PaymentMethod -->|Online| PaymentGateway[Redirect to Payment Gateway<br/>Midtrans/Stripe/Razorpay]
+    PaymentMethod -->|COD| PlaceOrderCOD[Buat Pesanan Bayar di Tempat]
+    PaymentMethod -->|Online| PaymentGateway[Arahkan ke Gateway Pembayaran<br/>Midtrans/Stripe/Razorpay]
 
-    PaymentGateway --> PaymentSuccess{Payment Success?}
-    PaymentSuccess -->|Yes| OrderConfirmation[Order Confirmation]
-    PaymentSuccess -->|No| PaymentFailed[Payment Failed - Try Again]
+    PaymentGateway --> PaymentSuccess{Pembayaran Berhasil?}
+    PaymentSuccess -->|Ya| OrderConfirmation[Konfirmasi Pesanan]
+    PaymentSuccess -->|Tidak| PaymentFailed[Gagal Pembayaran - Coba Lagi]
 
     PlaceOrderCOD --> OrderConfirmation
 
-    OrderConfirmation --> TrackOrder[Track Order]
-    TrackOrder --> OrderStatus{Order Status}
-    OrderStatus -->|Delivered| WriteReview[Write Product Review]
-    OrderStatus -->|Other| TrackOrder
+    OrderConfirmation --> TrackOrder[Lacak Pesanan]
+    TrackOrder --> OrderStatus{Status Pesanan}
+    OrderStatus -->|Dikirim| WriteReview[Tulis Ulasan Produk]
+    OrderStatus -->|Lainnya| TrackOrder
 
-    WriteReview --> End([End])
+    WriteReview --> End([Selesai])
 
-    classDef startend fill:#d4edda
-    classDef process fill:#cce7ff
-    classDef decision fill:#fff3cd
-    classDef external fill:#f8d7da
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class Start,End startend
-    class Browse,Search,ViewProduct,AddToCart,Checkout,Address,PlaceOrderCOD,OrderConfirmation,TrackOrder,WriteReview process
-    class LoginCheck,CartCheck,PaymentSuccess,OrderStatus decision
-    class PaymentGateway external
+    class Start,End,LoginCheck,Register,Login,Browse,Search,ViewProduct,AddToCart,CartCheck,Checkout,Address,PaymentMethod,PlaceOrderCOD,PaymentGateway,PaymentSuccess,OrderConfirmation,PaymentFailed,TrackOrder,OrderStatus,WriteReview default
 ```
 
-## Admin Panel Flow
+## Alur Panel Admin
 
 ```mermaid
 flowchart TD
-    AdminStart([Admin Login]) --> AdminAuth[Authenticate Admin]
-    AdminAuth --> Dashboard[Dashboard Overview]
+    AdminStart([Login Admin]) --> AdminAuth[Otentikasi Admin]
+    AdminAuth --> Dashboard[Ikhtisar Dashboard]
 
-    Dashboard --> ManageProducts{Manage Products}
-    ManageProducts -->|Add| AddProduct[Add New Product]
-    ManageProducts -->|List/Edit| ListProducts[List/Edit Products]
-    ManageProducts -->|Delete| DeleteProduct[Delete Product]
+    Dashboard --> ManageProducts{Kelola Produk}
+    ManageProducts -->|Tambah| AddProduct[Tambah Produk Baru]
+    ManageProducts -->|Daftar/Edit| ListProducts[Daftar/Edit Produk]
+    ManageProducts -->|Hapus| DeleteProduct[Hapus Produk]
 
-    Dashboard --> ManageOrders{Manage Orders}
-    ManageOrders -->|View| ViewOrders[View All Orders]
-    ManageOrders -->|Update Status| UpdateOrderStatus[Update Order Status]
+    Dashboard --> ManageOrders{Kelola Pesanan}
+    ManageOrders -->|Lihat| ViewOrders[Lihat Semua Pesanan]
+    ManageOrders -->|Update Status| UpdateOrderStatus[Update Status Pesanan]
 
-    Dashboard --> ManageReviews{Manage Reviews}
-    ManageReviews -->|View| ViewReviews[View All Reviews]
-    ManageReviews -->|Moderate| ModerateReview[Moderate Reviews]
+    Dashboard --> ManageReviews{Kelola Ulasan}
+    ManageReviews -->|Lihat| ViewReviews[Lihat Semua Ulasan]
+    ManageReviews -->|Moderasi| ModerateReview[Moderasi Ulasan]
 
-    Dashboard --> ManageUsers{Manage Users}
-    ManageUsers -->|View| ViewUsers[View User Statistics]
+    Dashboard --> ManageUsers{Kelola Pengguna}
+    ManageUsers -->|Lihat| ViewUsers[Lihat Statistik Pengguna]
 
     AddProduct --> Dashboard
     ListProducts --> Dashboard
@@ -202,15 +184,9 @@ flowchart TD
     ModerateReview --> Dashboard
     ViewUsers --> Dashboard
 
-    classDef auth fill:#f8d7da
-    classDef process fill:#cce7ff
-    classDef decision fill:#fff3cd
-    classDef end fill:#d4edda
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class AdminAuth auth
-    class AddProduct,ListProducts,DeleteProduct,ViewOrders,UpdateOrderStatus,ViewReviews,ModerateReview,ViewUsers process
-    class ManageProducts,ManageOrders,ManageReviews,ManageUsers decision
-    class Dashboard end
+    class AdminStart,AdminAuth,Dashboard,ManageProducts,AddProduct,ListProducts,DeleteProduct,ManageOrders,ViewOrders,UpdateOrderStatus,ManageReviews,ViewReviews,ModerateReview,ManageUsers,ViewUsers default
 ```
 
 ## Data Flow Architecture
@@ -218,22 +194,22 @@ flowchart TD
 ```mermaid
 graph LR
     subgraph "Frontend (React + Context)"
-        A1[User Interface]
-        A2[ShopContext<br/>State Management]
-        A3[API Calls with Axios]
+        A1[Antarmuka Pengguna]
+        A2[ShopContext<br/>Manajemen State]
+        A3[Panggilan API dengan Axios]
     end
 
     subgraph "Backend (Express.js)"
         B1[Routes]
-        B2[Middleware<br/>Auth/File Upload]
-        B3[Controllers<br/>Business Logic]
-        B4[Models<br/>Data Validation]
+        B2[Middleware<br/>Auth/Upload File]
+        B3[Controllers<br/>Logika Bisnis]
+        B4[Models<br/>Validasi Data]
     end
 
-    subgraph "Database & External Services"
-        C1[MongoDB<br/>Data Persistence]
-        C2[Cloudinary<br/>Image Storage]
-        C3[Payment APIs<br/>Midtrans/Stripe]
+    subgraph "Database & Layanan Eksternal"
+        C1[MongoDB<br/>Persistensi Data]
+        C2[Cloudinary<br/>Penyimpanan Gambar]
+        C3[API Pembayaran<br/>Midtrans/Stripe]
     end
 
     A1 --> A2
@@ -247,13 +223,9 @@ graph LR
     B3 --> C2
     B3 --> C3
 
-    classDef frontend fill:#e1f5fe
-    classDef backend fill:#f3e5f5
-    classDef database fill:#fff3e0
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class A1,A2,A3 frontend
-    class B1,B2,B3,B4 backend
-    class C1,C2,C3 database
+    class A1,A2,A3,B1,B2,B3,B4,C1,C2,C3 default
 ```
 
 ## Component Architecture (Frontend)
@@ -293,15 +265,9 @@ graph TB
         CartTotal[CartTotal.jsx]
     end
 
-    classDef main fill:#bbdefb
-    classDef page fill:#c8e6c9
-    classDef component fill:#ffcdd2
-    classDef utility fill:#fff9c4
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class Main main
-    class Home,Collection,Product,Cart,Login,Orders,Profile page
-    class Navbar,Footer,SearchBar,ProductItem,Hero,CartTotal component
-    class Context,Assets utility
+    class Main,Home,Collection,Product,Cart,Login,Orders,Profile,Navbar,Footer,SearchBar,ProductItem,Hero,CartTotal,Context,Assets default
 ```
 
 ## Component Architecture (Admin Panel)
@@ -331,73 +297,69 @@ graph TB
         LoginC[Login.jsx]
     end
 
-    classDef main fill:#bbdefb
-    classDef page fill:#c8e6c9
-    classDef component fill:#ffcdd2
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class AdminMain main
-    class DashboardP,AddP,ListP,OrdersP,ReviewsP page
-    class NavbarC,SidebarC,LoginC component
+    class AdminMain,DashboardP,AddP,ListP,OrdersP,ReviewsP,NavbarC,SidebarC,LoginC default
 ```
 
 ## Authentication Flow
 
 ```mermaid
 sequenceDiagram
-    participant U as User
+    participant P as Pengguna
     participant F as Frontend
     participant B as Backend
     participant DB as Database
 
-    U->>F: Click Login/Register
-    F->>F: Display Login Form
-    U->>F: Enter Credentials
+    P->>F: Klik Login/Daftar
+    F->>F: Tampilkan Form Login
+    P->>F: Masukkan Kredensial
     F->>B: POST /api/user/login
-    B->>DB: Query User
-    DB-->>B: User Data
-    B->>B: Verify Password (bcrypt)
-    B->>B: Generate JWT Token
+    B->>DB: Query Pengguna
+    DB-->>B: Data Pengguna
+    B->>B: Verifikasi Password (bcrypt)
+    B->>B: Generate Token JWT
     B-->>F: Return Token
-    F->>F: Store Token in localStorage
-    F->>F: Set Auth State
-    F-->>U: Redirect to Dashboard
+    F->>F: Store Token di localStorage
+    F->>F: Set State Auth
+    F-->>P: Redirect ke Dashboard
 
-    Note over U,B: Token required for protected routes
+    Note over P,B: Token diperlukan untuk route terproteksi
 ```
 
 ## Order Processing Flow
 
 ```mermaid
 sequenceDiagram
-    participant U as User
+    participant P as Pengguna
     participant F as Frontend
     participant B as Backend
-    participant PG as Payment Gateway
+    participant PG as Gateway Pembayaran
     participant DB as Database
 
-    U->>F: Add to Cart & Checkout
+    P->>F: Tambah ke Keranjang & Checkout
     F->>B: POST /api/orders/place (COD)
-    B->>DB: Create Order Document
-    B->>DB: Clear User Cart
-    B-->>F: Order Success
-    F-->>U: Order Confirmation
+    B->>DB: Buat Dokumen Pesanan
+    B->>DB: Kosongkan Keranjang Pengguna
+    B-->>F: Pesanan Berhasil
+    F-->>P: Konfirmasi Pesanan
 
-    U->>F: Choose Online Payment
+    P->>F: Pilih Pembayaran Online
     F->>B: POST /api/orders/online
-    B->>PG: Create Payment Transaction
-    PG-->>B: Return Payment Token
-    B->>DB: Save Order with Token
-    B-->>F: Payment Token & Order ID
-    F->>PG: Redirect to Payment Page
-    PG->>PG: User Completes Payment
-    PG-->>B: Payment Webhook/Callback
-    B->>DB: Update Order Payment Status
-    B-->>B: Send Confirmation
+    B->>PG: Buat Transaksi Pembayaran
+    PG-->>B: Return Token Pembayaran
+    B->>DB: Simpan Pesanan dengan Token
+    B-->>F: Token Pembayaran & ID Pesanan
+    F->>PG: Redirect ke Halaman Pembayaran
+    PG->>PG: Pengguna Menyelesaikan Pembayaran
+    PG-->>B: Webhook/Callback Pembayaran
+    B->>DB: Update Status Pembayaran Pesanan
+    B-->>B: Kirim Konfirmasi
 
-    Note over U,PG: Payment success/failure handling
+    Note over P,PG: Penanganan keberhasilan/kegagalan pembayaran
 ```
 
-## Technologies Used
+## Teknologi Yang Digunakan
 
 - **Frontend**: React 18, React Router, Axios, Tailwind CSS, Vite
 - **Backend**: Node.js, Express.js, MongoDB, Mongoose
@@ -406,13 +368,13 @@ sequenceDiagram
 - **Payment**: Midtrans, Stripe, Razorpay
 - **Deployment**: Vercel
 
-## Key Features
+## Fitur Utama
 
-- 🛍️ **E-commerce Platform**: Product browsing, cart, checkout
-- 👤 **User Management**: Registration, login, profile management
-- ⚡ **Admin Panel**: Product/order/review management
-- 💳 **Multiple Payment Options**: COD, online payments
-- 📦 **Order Tracking**: Real-time order status updates
-- ⭐ **Review System**: Product ratings and reviews
-- 🖼️ **Media Management**: Cloudinary integration for images
-- 🔍 **Search & Filters**: Advanced product search functionality
+- 🛍️ **Platform E-commerce**: Jelajahi produk, keranjang belanja, checkout
+- 👤 **Manajemen Pengguna**: Pendaftaran, login, manajemen profil
+- ⚡ **Panel Admin**: Manajemen produk/pesanan/ulasan
+- 💳 **Opsi Pembayaran Beragam**: COD, pembayaran online
+- 📦 **Pelacakan Pesanan**: Update status pesanan waktu nyata
+- ⭐ **Sistem Ulasan**: Rating dan ulasan produk
+- 🖼️ **Manajemen Media**: Integrasi Cloudinary untuk gambar
+- 🔍 **Pencarian & Filter**: Fungsi pencarian produk canggih
