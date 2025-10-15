@@ -57,53 +57,53 @@ graph TB
 
 ```mermaid
 erDiagram
-    USERS ||--o{ ORDERS : places
-    USERS ||--o{ REVIEWS : writes
-    USERS {
+    PENGGUNA ||--o{ PESANAN : membuat
+    PENGGUNA ||--o{ ULASAN : menulis
+    PENGGUNA {
         string id PK
-        string name
+        string nama
         string email UK
-        string password "hashed"
-        object cartData
-        date createdAt
+        string password "di-hash"
+        object dataKeranjang
+        date dibuatPada
     }
 
-    PRODUCTS ||--o{ ORDERS : "ordered in"
-    PRODUCTS {
+    PRODUK ||--o{ PESANAN : "di pesan dalam"
+    PRODUK {
         string id PK
-        string name
-        string description
-        number price
-        array image
-        string category
-        string subCategory
-        array sizes
-        boolean bestseller
-        number date
-        date createdAt
-        date updatedAt
+        string nama
+        string deskripsi
+        number harga
+        array gambar
+        string kategori
+        string subKategori
+        array ukuran
+        boolean produkTerlaris
+        number tanggal
+        date dibuatPada
+        date diperbaruiPada
     }
 
-    ORDERS {
+    PESANAN {
         string id PK
         string userId FK
-        array items
-        number amount
-        object address
+        array item
+        number jumlah
+        object alamat
         string status
-        string paymentMethod
-        boolean payment
-        number date
+        string metodePembayaran
+        boolean pembayaran
+        number tanggal
     }
 
-    REVIEWS {
+    ULASAN {
         string id PK
         string productId FK
         string userId FK
-        string userName
+        string namaPengguna
         number rating
-        string comment
-        number date
+        string komentar
+        number tanggal
     }
 ```
 
