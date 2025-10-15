@@ -451,15 +451,9 @@ flowchart TD
     UserManagement --> ViewUsers[Lihat Pengguna]
     ViewUsers --> ManageUser[Kelola Pengguna]
 
-    classDef startend fill:#e8f5e8,stroke:#28a745
-    classDef process fill:#cce7ff,stroke:#0066cc
-    classDef decision fill:#fff3cd,stroke:#856404
-    classDef gateway fill:#fce4ec,stroke:#c2185b
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class Start,End startend
-    class RegForm,CreateAccount,UserLogin,AdminLogin,BrowseCat,Search,ProductDetail,UpdateCart,ViewCart,Checkout,SelectAddress,CreateCODOrder,PaymentGateway,OrderConfirm,TrackOrder,ReviewForm,SubmitReview,AdminDashboard,ProductManagement,OrderManagement,UserManagement,AddProduct,EditProduct,DeleteProduct,ViewOrders,UpdateStatus,ProcessOrder,ViewUsers,ManageUser process
-    class Register,Login,AddCart,ContinueShop,PaymentSuccess,OrderStatus,AdminChoice,AdminAuth decision
-    class PaymentMethod gateway
+    class Start,End,RegForm,CreateAccount,UserLogin,AdminLogin,BrowseCat,Search,ProductDetail,UpdateCart,ViewCart,Checkout,SelectAddress,CreateCODOrder,PaymentGateway,OrderConfirm,TrackOrder,ReviewForm,SubmitReview,AdminDashboard,ProductManagement,OrderManagement,UserManagement,AddProduct,EditProduct,DeleteProduct,ViewOrders,UpdateStatus,ProcessOrder,ViewUsers,ManageUser default
 ```
 
 ## Sub-Proses: Penanganan Pembayaran Online
@@ -493,14 +487,9 @@ flowchart TD
     NotifySuccess --> EndPG([Pembayaran Selesai])
     NotifyFailed --> EndPG
 
-    classDef startend fill:#e8f5e8,stroke:#28a745
-    classDef process fill:#cce7ff,stroke:#0066cc
-    classDef decision fill:#fff3cd,stroke:#856404
-    classDef gateway fill:#fce4ec,stroke:#c2185b
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class StartPG,EndPG startend
-    class MidtransProcess,StripeProcess,RazorpayProcess,GenerateToken,SendToFrontend,RedirectUser,UserInput,GatewayProcess,SuccessWebhook,FailedWebhook,UpdateOrderSuccess,UpdateOrderFailed,NotifySuccess,NotifyFailed process
-    class SelectGateway,GatewayResult decision
+    class StartPG,EndPG,MidtransProcess,StripeProcess,RazorpayProcess,GenerateToken,SendToFrontend,RedirectUser,UserInput,GatewayProcess,SuccessWebhook,FailedWebhook,UpdateOrderSuccess,UpdateOrderFailed,NotifySuccess,NotifyFailed default
 ```
 
 ## Sub-Proses: Manajemen Inventori Admin
@@ -536,14 +525,9 @@ flowchart TD
     SupplierNotification --> EndAdmin
     ManualReorder --> EndAdmin
 
-    classDef startend fill:#e8f5e8,stroke:#28a745
-    classDef process fill:#cce7ff,stroke:#0066cc
-    classDef decision fill:#fff3cd,stroke:#856404
-    classDef gateway fill:#fce4ec,stroke:#c2185b
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class AdminStart,EndAdmin startend
-    class Dashboard,CheckStock,UpdateStock,LowStockAlert,Restock,StockReport,QuantityInput,SaveStock,SupplierNotification,ManualReorder process
-    class InventoryChoice,ValidateQty,SendStockAlert,AutoReorder decision
+    class AdminStart,EndAdmin,Dashboard,CheckStock,UpdateStock,LowStockAlert,Restock,StockReport,QuantityInput,SaveStock,SupplierNotification,ManualReorder default
 ```
 
 ## Pool dan Lane: Stakeholders
@@ -612,17 +596,9 @@ flowchart TD
     S2 --> A2
     S4 --> A3
 
-    classDef userpool fill:#e1f5fe
-    classDef systempool fill:#f3e5f5
-    classDef adminpool fill:#fff3e0
-    classDef paymentpool fill:#fce4ec
-    classDef logisticspool fill:#e8f5e8
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
 
-    class U1,U2,U3,U4,U5 userpool
-    class S1,S2,S3,S4,S5 systempool
-    class A1,A2,A3,A4,A5 adminpool
-    class P1,P2,P3 paymentpool
-    class L1,L2,L3,L4 logisticspool
+    class U1,U2,U3,U4,U5,S1,S2,S3,S4,S5,A1,A2,A3,A4,A5,P1,P2,P3,L1,L2,L3,L4 default
 ```
 
 ## Notasi BPMN Yang Digunakan
