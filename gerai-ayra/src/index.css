@@ -34,3 +34,17 @@ a.active hr{
     100% { width: 100%; }
   }
   
+  /* Custom breakpoints */
+  @media (min-width: 400px) {
+    .xs\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    
+    .xs\:block {
+      display: block;
+    }
+    
+    .xs\:flex {
+      display: flex;
+    }
+  }

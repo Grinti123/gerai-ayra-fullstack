@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '400px',
+        // => @media (min-width: 400px) { ... }
+      },
       colors: {
         primary: {
           50: '#fef7ff',
@@ -119,4 +123,3 @@ export default {
   },
   plugins: [],
 }
-
