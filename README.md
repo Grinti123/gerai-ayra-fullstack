@@ -34,11 +34,11 @@ graph TB
     end
 
     subgraph "Routes"
-        L[/api/user] --> M[User Routes<br/>login/register/admin]
-        N[/api/product] --> O[Product Routes<br/>add/list/remove/update]
-        P[/api/cart] --> Q[Cart Routes<br/>add/get/update]
-        R[/api/orders] --> S[Order Routes<br/>place/list/status/update]
-        T[/api/review] --> U[Review Routes<br/>add/get/delete/update]
+        L["/api/user"] --> M["User Routes<br/>login/register/admin"]
+        N["/api/product"] --> O["Product Routes<br/>add/list/remove/update"]
+        P["/api/cart"] --> Q["Cart Routes<br/>add/get/update"]
+        R["/api/orders"] --> S["Order Routes<br/>place/list/status/update"]
+        T["/api/review"] --> U["Review Routes<br/>add/get/delete/update"]
     end
 
     subgraph "Models"
@@ -72,17 +72,17 @@ erDiagram
     USERS ||--o{ ORDERS : places
     USERS ||--o{ REVIEWS : writes
     USERS {
-        string _id PK
+        string id PK
         string name
         string email UK
-        string password hashed
+        string password "hashed"
         object cartData
         date createdAt
     }
 
     PRODUCTS ||--o{ ORDERS : "ordered in"
     PRODUCTS {
-        string _id PK
+        string id PK
         string name
         string description
         number price
@@ -97,7 +97,7 @@ erDiagram
     }
 
     ORDERS {
-        string _id PK
+        string id PK
         string userId FK
         array items
         number amount
@@ -109,7 +109,7 @@ erDiagram
     }
 
     REVIEWS {
-        string _id PK
+        string id PK
         string productId FK
         string userId FK
         string userName
