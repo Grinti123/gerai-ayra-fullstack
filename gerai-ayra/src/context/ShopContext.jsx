@@ -15,6 +15,7 @@ const ShopContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('')
+    const [userData, setUserData] = useState({})
     const navigate = useNavigate();
 
 
@@ -129,6 +130,18 @@ const ShopContextProvider = (props) => {
         }
     }
 
+    const getUserProfile = async (token) => {
+        try {
+            const response = await axios.post(backendUrl + '/api/user/profile', {}, {headers:{token}})
+            if (response.data.success) {
+                setUserData(response.data.userData)
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+        }
+    }
+
     useEffect(() => {
         getProductsData()
     }, [])
@@ -137,6 +150,7 @@ const ShopContextProvider = (props) => {
         if (!token && localStorage.getItem('token')) {
             setToken(localStorage.getItem('token'))
             getUserCart(localStorage.getItem('token'))
+            getUserProfile(localStorage.getItem('token'))
         }
     }, [])
 
@@ -147,6 +161,7 @@ const ShopContextProvider = (props) => {
         getCartCount, updateQuantity,
         getCartAmount, navigate,
         backendUrl, setToken, token,
+        userData, setUserData, getUserProfile,
     }
 
     return (

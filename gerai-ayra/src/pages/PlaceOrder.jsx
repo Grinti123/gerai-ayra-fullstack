@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
@@ -22,7 +22,7 @@ const loadSnapScript = () => {
 const PlaceOrder = () => {
 
   const [method, setMethod] = useState('cod');
-  const {navigate, backendUrl, token, setToken, cartItems, setCartItems, getCartAmount, delivery_fee, products} = useContext(ShopContext);
+  const {navigate, backendUrl, token, setToken, cartItems, setCartItems, getCartAmount, delivery_fee, products, userData} = useContext(ShopContext);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -41,6 +41,23 @@ const PlaceOrder = () => {
 
     setFormData(data => ({...data, [name]:value}))
   }
+
+  useEffect(() => {
+    if (token && userData) {
+      // Pre-fill form with user profile data
+      setFormData({
+        firstName: userData.name ? userData.name.split(' ')[0] || '' : '',
+        lastName: userData.name ? userData.name.split(' ').slice(1).join(' ') || '' : '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        street: userData.address ? userData.address.line1 || '' : '',
+        city: userData.address ? userData.address.city || '' : '',
+        state: userData.address ? userData.address.province || '' : '',
+        zipcode: userData.address ? userData.address.zipcode || '' : '',
+        country: userData.address ? userData.address.country || 'Indonesia' : 'Indonesia',
+      })
+    }
+  }, [token, userData])
 
   const onSubmitHandler = async (event) => {
     event.preventDefault()

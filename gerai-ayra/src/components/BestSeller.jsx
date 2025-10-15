@@ -14,21 +14,32 @@ const BestSeller = () => {
     }, [products])
 
   return (
-    <div className='my-10'>
-        <div className='text-center text-3xl py-8'>
+    <div className='py-16 px-6'>
+        <div className='text-center py-12 animate-fade-in-up'>
             <Title text1={'BEST'} text2={'SELLERS'} />
-            <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
-            Jelajahi koleksi Best Sellers kami yang paling diminati pembeli! 
+            <p className='max-w-2xl mx-auto text-base md:text-lg text-gray-600 leading-relaxed mt-4'>
+            Jelajahi koleksi Best Sellers kami yang paling diminati pembeli! ⭐
             </p>
         </div>
 
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6'>
+        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 gap-y-8 animate-fade-in-up' style={{animationDelay: '0.2s'}}>
             {
                 bestSeller.map((item, index) => (
-                    <ProductItem key={index} id={item._id} name={item.name} image={item.image} price={item.price} />
+                    <div 
+                      key={index} 
+                      className='transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 animate-fade-in-up group'
+                      style={{animationDelay: `${0.1 * index}s`}}
+                    >
+                      {/* Best Seller Badge */}
+                      <div className='relative'>
+                        <div className='absolute -top-2 -right-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce-slow'>
+                          🔥 Best
+                        </div>
+                        <ProductItem id={item._id} name={item.name} image={item.image} price={item.price} />
+                      </div>
+                    </div>
                 ))
             }
-
         </div>
     </div>
   )

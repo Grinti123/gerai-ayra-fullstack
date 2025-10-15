@@ -89,4 +89,51 @@ const singleProduct = async (req, res) => {
 
 
 
-export {addProduct, listProduct, removeProduct, singleProduct};
+const updateProduct = async (req, res) => {
+    try {
+        const { id, name, description, price, category, subCategory, sizes, bestseller } = req.body;
+
+        const updateData = {};
+
+        // Only add fields that are provided and valid
+        if (bestseller !== undefined) {
+            updateData.bestseller = bestseller === "true" || bestseller === true ? true : false;
+        }
+
+        // For other fields, only add them if they are provided and not empty
+        if (typeof name === 'string' && name.trim() !== '') updateData.name = name.trim();
+        if (typeof description === 'string' && description.trim() !== '') updateData.description = description.trim();
+        if (typeof category === 'string' && category.trim() !== '') updateData.category = category.trim();
+        if (typeof subCategory === 'string' && subCategory.trim() !== '') updateData.subCategory = subCategory.trim();
+        if (price !== undefined && !isNaN(price) && price !== '') updateData.price = Number(price);
+        if (sizes !== undefined) updateData.sizes = sizes;
+
+        const product = await productModel.findById(id);
+        if (!product) {
+            return res.json({ success: false, message: "Product not found" });
+        }
+
+        // Update only the fields that are provided
+        if (updateData.name !== undefined) product.name = updateData.name;
+        if (updateData.description !== undefined) product.description = updateData.description;
+        if (updateData.category !== undefined) product.category = updateData.category;
+        if (updateData.subCategory !== undefined) product.subCategory = updateData.subCategory;
+        if (updateData.price !== undefined) product.price = updateData.price;
+        if (updateData.sizes !== undefined) product.sizes = updateData.sizes;
+        if (updateData.bestseller !== undefined) product.bestseller = updateData.bestseller;
+
+        await product.save();
+
+        if (!product) {
+            return res.json({ success: false, message: "Product not found" });
+        }
+
+        res.json({ success: true, message: "Product updated successfully" });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export {addProduct, listProduct, removeProduct, singleProduct, updateProduct};
