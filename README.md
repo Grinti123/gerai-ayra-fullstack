@@ -21,7 +21,7 @@ graph TD
 ---
 config:
   layout: dagre
-  look: handDrawn
+  look: classic
 ---
 flowchart TD
     A["Pengguna"] -- Registrasi / Login --> B["Frontend"]
