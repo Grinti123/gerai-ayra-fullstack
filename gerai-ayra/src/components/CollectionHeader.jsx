@@ -20,9 +20,6 @@ const CollectionHeader = ({ sortType, setSortType, totalProducts, viewMode, setV
             <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6'>
                 <div className='flex items-center gap-4'>
                     <Title text1={'ALL'} text2={'COLLECTIONS'} />
-                    <div className='px-3 py-1 bg-accent-100 text-accent-700 rounded-full text-sm font-medium'>
-                        {totalProducts} Products
-                    </div>
                 </div>
 
                 {/* Controls */}

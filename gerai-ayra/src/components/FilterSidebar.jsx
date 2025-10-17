@@ -54,7 +54,7 @@ const FilterSidebar = ({
     );
 
     return (
-        <div className='min-w-80 animate-fade-in-left'>
+        <div className='w-full max-w-80 animate-fade-in-left'>
             {/* Filter Header */}
             <div className='sticky top-4 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden'>
                 {/* Mobile Toggle Header */}

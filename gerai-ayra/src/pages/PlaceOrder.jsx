@@ -146,7 +146,7 @@ const PlaceOrder = () => {
   }
 
   return (
-    <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
+    <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t w-full'>
       {/* Left Side */}
         <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
             <div className='text-xl sm:text-2xl my-3'>
@@ -170,8 +170,8 @@ const PlaceOrder = () => {
         </div>
 
         {/* Right Side */}
-        <div className='mt-8'>
-          <div className='mt-8 min-w-80'>
+        <div className='mt-8 w-full max-w-80'>
+          <div className='mt-8'>
               <CartTotal />
           </div>
           <div className='mt-12'>

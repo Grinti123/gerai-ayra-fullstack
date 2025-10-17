@@ -11,9 +11,9 @@ const NewsletterBox = () => {
         <p className='text-2xl font-medium text-gray-800'>Hubungi Kita</p>
         <p className='text-gray-400 mt-3'>
         </p>
-        <form onSubmit={onSubmitHandler} className='w-full sm:w-1/2 flex items-center gap-3 mx-auto my-6 border pl-3'>
-            <input className='w-full sm:flex outline-none' type="email" placeholder='Enter your Email' required/>
-            <button type='submit' className='bg-black text-white text-xs px-10 py-4 '>Submit</button>
+        <form onSubmit={onSubmitHandler} className='w-full max-w-2xl flex flex-col sm:flex-row items-center gap-3 mx-auto my-6 border p-1'>
+            <input className='w-full flex-grow outline-none px-4 py-3' type="email" placeholder='Enter your Email' required/>
+            <button type='submit' className='bg-black text-white text-xs sm:text-sm px-6 py-3 sm:px-8 sm:py-4 whitespace-nowrap'>Submit</button>
         </form>
     </div>
   )
