@@ -16,7 +16,32 @@ graph TD
 
     class A,B,C,D,E,F,G default
 ```
-
+## Document Flow
+```mermaid
+---
+config:
+  layout: dagre
+  look: classic
+---
+flowchart TD
+    A["Pengguna"] -- Registrasi / Login --> B["Frontend"]
+    B -- Kirim Data Autentikasi --> C["Backend"]
+    C -- Simpan Data Pengguna --> D[("Database")]
+    A -- Pilih Produk & Checkout --> B
+    B -- Kirim Data Pesanan --> C
+    C -- "Simpan Dokumen Pesanan - status pending" --> D
+    C -- Kirim Data ke Gateway --> E["Gateway Pembayaran"]
+    E -- Kirim Callback Status Pembayaran --> C
+    C -- Update Status Pesanan --> D
+    C -- Notifikasi Pesanan Baru --> F["Admin"]
+    F -- Proses Pengiriman Barang --> G["Gudang"]
+    G -- Kirim Barang ke Pengguna --> A
+    A -- Kirim Ulasan Produk --> B
+    B -- Kirim Data Ulasan --> C
+    C -- Simpan Data Ulasan --> D
+    F -- Akses Data Penjualan --> D
+    D -- Hasilkan Laporan Penjualan --> F
+```
 ## Struktur API Backend
 
 ```mermaid
