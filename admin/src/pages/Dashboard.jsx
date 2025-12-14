@@ -134,7 +134,9 @@ const Dashboard = ({ token }) => {
               {recentOrders.map((order) => (
                 <div key={order._id} className='flex items-center justify-between p-4 border rounded-lg'>
                   <div>
-                    <p className='font-medium'>Order #{order._id.slice(-8)}</p>
+                    <p className='font-medium'>
+                      {order.items.map(item => item.name).join(', ')}
+                    </p>
                     <p className='text-sm text-gray-500'>
                       {order.address ? [order.address.firstName, order.address.lastName].filter(Boolean).join(' ') : 'N/A'}
                     </p>
@@ -150,12 +152,11 @@ const Dashboard = ({ token }) => {
                   </div>
                   <div className='text-right'>
                     <p className='font-semibold'>Rp.{order.amount.toLocaleString()}</p>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                      order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                      order.status === 'Processing' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span className={`px-2 py-1 text-xs rounded-full ${order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                        order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
+                          order.status === 'Processing' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                      }`}>
                       {order.status}
                     </span>
                   </div>

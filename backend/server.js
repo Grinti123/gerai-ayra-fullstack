@@ -8,6 +8,7 @@ import productRouter from './routes/productRoute.js'
 import cartRouter from './routes/cartRoute.js'
 import orderRouter from './routes/orderRoute.js'
 import reviewRouter from './routes/reviewRoute.js'
+import voucherRouter from './routes/voucherRoute.js'
 
 // App Config
 const app = express()
@@ -25,6 +26,7 @@ app.use('/api/product', productRouter)
 app.use('/api/orders', orderRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/review', reviewRouter)
+app.use('/api/voucher', voucherRouter)
 
 app.get('/', (req, res) => {
     res.send("API Working")
