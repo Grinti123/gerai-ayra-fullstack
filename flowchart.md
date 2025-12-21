@@ -1,4 +1,4 @@
-# Diagram Alir Aplikasi Gerai Ayra Fullstack
+# Diagram Alir Aplikasi Gerai Ayra Fullstack (Updated)
 
 ## Arsitektur Tingkat Tinggi
 
@@ -13,7 +13,6 @@ graph TD
     D --> G[Gateway Pembayaran<br/>Midtrans/Stripe/Razorpay]
 
     classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
-
     class A,B,C,D,E,F,G default
 ```
 
@@ -28,82 +27,94 @@ graph TB
     end
 
     subgraph "Routes"
-        L["/api/user"] --> M["User Routes<br/>login/register/admin"]
-        N["/api/product"] --> O["Product Routes<br/>add/list/remove/update"]
-        P["/api/cart"] --> Q["Cart Routes<br/>add/get/update"]
-        R["/api/orders"] --> S["Order Routes<br/>place/list/status/update"]
-        T["/api/review"] --> U["Review Routes<br/>add/get/delete/update"]
+        R1["/api/user"] --> C1["Auth & Profile"]
+        R2["/api/product"] --> C2["Product Mgmt"]
+        R3["/api/category"] --> C3["Category Mgmt"]
+        R4["/api/cart"] --> C4["Cart Logic"]
+        R5["/api/orders"] --> C5["Order & Returns"]
+        R6["/api/voucher"] --> C6["Voucher System"]
+        R7["/api/crm"] --> C7["Leads & Interactions"]
+        R8["/api/expense"] --> C8["Financial Tracking"]
+        R9["/api/analytics"] --> C9["Traffic Analytics"]
+        R10["/api/settings"] --> C10["Site Configuration"]
     end
 
     subgraph "Models"
-        V[User Model]
-        W[Product Model]
-        X[Order Model]
-        Y[Review Model]
+        M1[User/Lead]
+        M2[Product/Category]
+        M3[Order/Return]
+        M4[Voucher]
+        M5[Expense/Analytics]
+        M6[Shipping/Payment/Setting]
     end
 
     subgraph "Middleware"
-        Z[auth.js - User Auth]
-        AA[adminAuth.js - Admin Auth]
-        BB[multer.js - File Upload]
+        Z[auth.js]
+        AA[adminAuth.js]
+        BB[multer.js]
     end
 
     classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
-
-    class H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,BB default
+    class H,I,J,K,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,M1,M2,M3,M4,M5,M6,Z,AA,BB default
 ```
 
-## Relasi Skema Database
+## Relasi Skema Database (ERD)
 
 ```mermaid
 erDiagram
     PENGGUNA ||--o{ PESANAN : membuat
     PENGGUNA ||--o{ ULASAN : menulis
+    PENGGUNA ||--o{ RETUR : mengajukan
+    PENGGUNA ||--o{ INTERAKSI : melakukan
+    PRODUK ||--o{ PESANAN : "dipesan dalam"
+    PRODUK }o--|| KATEGORI : "termasuk dalam"
+    PESANAN ||--|| RETUR : "memiliki"
+    PESANAN }o--|| METODE_PEMBAYARAN : "menggunakan"
+    PESANAN }o--|| SHIPPING : "menggunakan"
+    VOUCHER }o--o{ PRODUK : "berlaku untuk"
+    LEAD ||--o{ INTERAKSI : "memiliki"
+
     PENGGUNA {
         string id PK
         string nama
         string email UK
-        string password "di-hash"
         object dataKeranjang
-        date dibuatPada
     }
-
-    PRODUK ||--o{ PESANAN : "di pesan dalam"
     PRODUK {
         string id PK
         string nama
-        string deskripsi
         number harga
-        array gambar
-        string kategori
-        string subKategori
-        array ukuran
-        boolean produkTerlaris
-        number tanggal
-        date dibuatPada
-        date diperbaruiPada
+        string kategoriID FK
+        number stok
     }
-
+    KATEGORI {
+        string id PK
+        string nama
+        boolean isActive
+    }
+    VOUCHER {
+        string id PK
+        string kode UK
+        number nilaiDiskon
+        date validHingga
+    }
     PESANAN {
         string id PK
         string userId FK
-        array item
-        number jumlah
-        object alamat
+        number total
         string status
-        string metodePembayaran
-        boolean pembayaran
-        number tanggal
     }
-
-    ULASAN {
+    RETUR {
         string id PK
-        string productId FK
-        string userId FK
-        string namaPengguna
-        number rating
-        string komentar
-        number tanggal
+        string orderId FK
+        string alasan
+        string status
+    }
+    BIAYA {
+        string id PK
+        string judul
+        number jumlah
+        date tanggal
     }
 ```
 
@@ -111,121 +122,115 @@ erDiagram
 
 ```mermaid
 flowchart TD
-    Start([Pengguna Mengunjungi Situs]) --> LoginCheck{Sudah Masuk?}
-
-    LoginCheck -->|Tidak| Register[Daftarkan Akun]
-    Register --> Login[Masuk]
-    LoginCheck -->|Ya| Browse[Jelajahi Produk]
-
-    Login --> Browse
-
-    Browse --> Search[Gunakan Cari/Filter]
+    Start([Pengguna Mengunjungi Situs]) --> Browse[Jelajahi Produk]
+    Browse --> Search[Cari/Filter Kategori]
     Search --> ViewProduct[Lihat Detail Produk]
-    Browse --> ViewProduct
-
+    
+    ViewProduct --> Wishlist[Tambah ke Wishlist]
     ViewProduct --> AddToCart[Tambah ke Keranjang]
-    AddToCart --> CartCheck{Lebih Banyak Item?}
-    CartCheck -->|Ya| Browse
-    CartCheck -->|Tidak| Checkout[Lanjutkan ke Checkout]
-
-    Checkout --> Address[Masukkan Alamat Pengiriman]
-    Address --> PaymentMethod[Pilih Pembayaran]
-
-    PaymentMethod -->|COD| PlaceOrderCOD[Buat Pesanan Bayar di Tempat]
-    PaymentMethod -->|Online| PaymentGateway[Arahkan ke Gateway Pembayaran<br/>Midtrans/Stripe/Razorpay]
-
-    PaymentGateway --> PaymentSuccess{Pembayaran Berhasil?}
-    PaymentSuccess -->|Ya| OrderConfirmation[Konfirmasi Pesanan]
-    PaymentSuccess -->|Tidak| PaymentFailed[Gagal Pembayaran - Coba Lagi]
-
-    PlaceOrderCOD --> OrderConfirmation
-
-    OrderConfirmation --> TrackOrder[Lacak Pesanan]
-    TrackOrder --> OrderStatus{Status Pesanan}
-    OrderStatus -->|Dikirim| WriteReview[Tulis Ulasan Produk]
-    OrderStatus -->|Lainnya| TrackOrder
-
-    WriteReview --> End([Selesai])
+    
+    AddToCart --> CartPage[Halaman Keranjang]
+    CartPage --> ApplyVoucher[Input Kode Voucher]
+    ApplyVoucher --> VoucherValid{Voucher Valid?}
+    VoucherValid -->|Ya| Discount[Potongan Harga Diterapkan]
+    VoucherValid -->|Tidak| ErrorMsg[Pesan Error]
+    
+    Discount --> Checkout[Lanjutkan ke Checkout]
+    ErrorMsg --> Checkout
+    
+    Checkout --> LoginCheck{Sudah Login?}
+    LoginCheck -->|Tidak| Login[Masuk/Daftar]
+    Login --> Address[Pilih Alamat & Ekspedisi]
+    LoginCheck -->|Ya| Address
+    
+    Address --> PaymentMethod[Pilih Metode Pembayaran]
+    PaymentMethod --> Online[Pembayaran Online]
+    PaymentMethod --> COD[Bayar di Tempat]
+    
+    Online --> PayGateway[Gateway Pembayaran]
+    PayGateway --> PaySuccess{Berhasil?}
+    PaySuccess -->|Ya| OrderDone[Konfirmasi Pesanan]
+    PaySuccess -->|Tidak| Checkout
+    
+    COD --> OrderDone
+    
+    OrderDone --> Track[Lacak Pesanan]
+    Track --> Received{Pesanan Diterima?}
+    Received -->|Ya| Review[Tulis Ulasan]
+    Received -->|Bermasalah| ReturnRequest[Ajukan Retur/Tukar]
+    
+    Review --> End([Selesai])
+    ReturnRequest --> End
 
     classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
-
-    class Start,End,LoginCheck,Register,Login,Browse,Search,ViewProduct,AddToCart,CartCheck,Checkout,Address,PaymentMethod,PlaceOrderCOD,PaymentGateway,PaymentSuccess,OrderConfirmation,PaymentFailed,TrackOrder,OrderStatus,WriteReview default
+    class Start,End,Browse,Search,ViewProduct,Wishlist,AddToCart,CartPage,ApplyVoucher,VoucherValid,Discount,ErrorMsg,Checkout,LoginCheck,Login,Address,PaymentMethod,Online,COD,PayGateway,PaySuccess,OrderDone,Track,Received,Review,ReturnRequest default
 ```
 
-## Alur Panel Admin
+## Alur Panel Admin (Backoffice)
 
 ```mermaid
 flowchart TD
-    AdminStart([Login Admin]) --> AdminAuth[Otentikasi Admin]
-    AdminAuth --> Dashboard[Ikhtisar Dashboard]
-
-    Dashboard --> ManageProducts{Kelola Produk}
-    ManageProducts -->|Tambah| AddProduct[Tambah Produk Baru]
-    ManageProducts -->|Daftar/Edit| ListProducts[Daftar/Edit Produk]
-    ManageProducts -->|Hapus| DeleteProduct[Hapus Produk]
-
-    Dashboard --> ManageOrders{Kelola Pesanan}
-    ManageOrders -->|Lihat| ViewOrders[Lihat Semua Pesanan]
-    ManageOrders -->|Update Status| UpdateOrderStatus[Update Status Pesanan]
-
-    Dashboard --> ManageReviews{Kelola Ulasan}
-    ManageReviews -->|Lihat| ViewReviews[Lihat Semua Ulasan]
-    ManageReviews -->|Moderasi| ModerateReview[Moderasi Ulasan]
-
-    Dashboard --> ManageUsers{Kelola Pengguna}
-    ManageUsers -->|Lihat| ViewUsers[Lihat Statistik Pengguna]
-
-    AddProduct --> Dashboard
-    ListProducts --> Dashboard
-    DeleteProduct --> Dashboard
-    ViewOrders --> Dashboard
-    UpdateOrderStatus --> Dashboard
-    ViewReviews --> Dashboard
-    ModerateReview --> Dashboard
-    ViewUsers --> Dashboard
+    AdminStart([Login Admin]) --> Dashboard[Dashboard Analytics]
+    
+    Dashboard --> Inv[Manajemen Inventaris]
+    Inv --> Category[Kelola Kategori]
+    Inv --> Products[Kelola Produk & Stok]
+    
+    Dashboard --> Sales[Manajemen Penjualan]
+    Sales --> Orders[Kelola Pesanan]
+    Sales --> Returns[Kelola Retur & Refund]
+    
+    Dashboard --> Promo[Pemasaran]
+    Promo --> Vouchers[Kelola Voucher]
+    Promo --> Reviews[Moderasi Ulasan]
+    
+    Dashboard --> CRM[Hubungan Pelanggan]
+    CRM --> Leads[Kelola Leads]
+    CRM --> Interactions[Catat Interaksi WA/Email]
+    
+    Dashboard --> Finance[Keuangan]
+    Finance --> Expenses[Input Pengeluaran Operasional]
+    Finance --> Reports[Laporan Laba/Rugi]
+    
+    Dashboard --> Config[Konfigurasi Sistem]
+    Config --> Shipping[Set Biaya Pengiriman]
+    Config --> Payments[Set Metode Pembayaran]
+    Config --> Settings[Update SEO/Logo/Kontak]
 
     classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
-
-    class AdminStart,AdminAuth,Dashboard,ManageProducts,AddProduct,ListProducts,DeleteProduct,ManageOrders,ViewOrders,UpdateOrderStatus,ManageReviews,ViewReviews,ModerateReview,ManageUsers,ViewUsers default
+    class AdminStart,Dashboard,Inv,Category,Products,Sales,Orders,Returns,Promo,Vouchers,Reviews,CRM,Leads,Interactions,Finance,Expenses,Reports,Config,Shipping,Payments,Settings default
 ```
 
 ## Data Flow Architecture
 
 ```mermaid
 graph LR
-    subgraph "Frontend (React + Context)"
-        A1[Antarmuka Pengguna]
-        A2[ShopContext<br/>Manajemen State]
-        A3[Panggilan API dengan Axios]
+    subgraph "Client Tier (React)"
+        A1[UI Components]
+        A2[Context Store]
+        A3[Axios Interceptors]
     end
 
-    subgraph "Backend (Express.js)"
-        B1[Routes]
-        B2[Middleware<br/>Auth/Upload File]
-        B3[Controllers<br/>Logika Bisnis]
-        B4[Models<br/>Validasi Data]
+    subgraph "API Tier (Node/Express)"
+        B1[Public/Admin Routes]
+        B2[Auth/Upload Middleware]
+        B3[Business Logic Controllers]
     end
 
-    subgraph "Database & Layanan Eksternal"
-        C1[MongoDB<br/>Persistensi Data]
-        C2[Cloudinary<br/>Penyimpanan Gambar]
-        C3[API Pembayaran<br/>Midtrans/Stripe]
+    subgraph "Data Tier"
+        C1[(MongoDB Atlas)]
+        C2[Cloudinary CDN]
+        C3[Payment Gateway API]
     end
 
-    A1 --> A2
-    A2 --> A3
-    A3 --> B1
+    A1 <--> A2
+    A2 <--> A3
+    A3 <--> B1
     B1 --> B2
     B2 --> B3
-    B3 --> B4
-
-    B3 --> C1
-    B3 --> C2
-    B3 --> C3
-
-    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
-
-    class A1,A2,A3,B1,B2,B3,B4,C1,C2,C3 default
+    B3 <--> C1
+    B3 <--> C2
+    B3 <--> C3
 ```
 
 ## Component Architecture (Frontend)
@@ -233,41 +238,31 @@ graph LR
 ```mermaid
 graph TB
     subgraph "gerai-ayra/src"
-        Main[App.jsx]
-        Pages[pages/]
-        Components[components/]
-        Context[context/ShopContext.jsx]
-        Assets[assets/]
+        App[App.jsx]
+        Context[ShopContext.jsx]
+        
+        subgraph "Pages"
+            Home[Home.jsx]
+            Coll[Collection.jsx]
+            Prod[Product.jsx]
+            Cart[Cart.jsx]
+            Wish[Wishlist.jsx]
+            Place[PlaceOrder.jsx]
+            Ord[Orders.jsx]
+            Ret[ReturnRequest.jsx]
+        end
+        
+        subgraph "Components"
+            Nav[Navbar.jsx]
+            Vouch[VoucherList.jsx]
+            Total[CartTotal.jsx]
+            Filter[FilterSidebar.jsx]
+        end
     end
 
-    Main --> Pages
-    Main --> Components
-    Components --> Context
+    App --> Pages
     Pages --> Context
-    Context --> Assets
-
-    subgraph "Pages"
-        Home[Home.jsx]
-        Collection[Collection.jsx]
-        Product[Product.jsx]
-        Cart[Cart.jsx]
-        Login[Login.jsx]
-        Orders[Orders.jsx]
-        Profile[Profile.jsx]
-    end
-
-    subgraph "Components"
-        Navbar[Navbar.jsx]
-        Footer[Footer.jsx]
-        SearchBar[SearchBar.jsx]
-        ProductItem[ProductItem.jsx]
-        Hero[Hero.jsx]
-        CartTotal[CartTotal.jsx]
-    end
-
-    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
-
-    class Main,Home,Collection,Product,Cart,Login,Orders,Profile,Navbar,Footer,SearchBar,ProductItem,Hero,CartTotal,Context,Assets default
+    Components --> Context
 ```
 
 ## Component Architecture (Admin Panel)
@@ -275,106 +270,35 @@ graph TB
 ```mermaid
 graph TB
     subgraph "admin/src"
-        AdminMain[App.jsx]
-        AdminPages[pages/]
-        AdminComponents[components/]
+        AdminApp[App.jsx]
+        
+        subgraph "Admin Pages"
+            Dash[Dashboard.jsx]
+            Add[Add.jsx]
+            List[List.jsx]
+            Cats[Categories.jsx]
+            Ords[Orders.jsx]
+            Rets[Returns.jsx]
+            Vouchs[Vouchers.jsx]
+            CRM_P[CRM.jsx]
+            Exp[Expenses.jsx]
+            Set[Settings.jsx]
+        end
     end
 
-    AdminMain --> AdminPages
-    AdminMain --> AdminComponents
-
-    subgraph "Admin Pages"
-        DashboardP[Dashboard.jsx]
-        AddP[Add.jsx]
-        ListP[List.jsx]
-        OrdersP[Orders.jsx]
-        ReviewsP[Reviews.jsx]
-    end
-
-    subgraph "Admin Components"
-        NavbarC[Navbar.jsx]
-        SidebarC[Sidebar.jsx]
-        LoginC[Login.jsx]
-    end
-
-    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
-
-    class AdminMain,DashboardP,AddP,ListP,OrdersP,ReviewsP,NavbarC,SidebarC,LoginC default
+    AdminApp --> Dash
+    AdminApp --> Add
+    AdminApp --> Ords
+    AdminApp --> CRM_P
 ```
 
-## Authentication Flow
+## Teknologi & Fitur Utama
 
-```mermaid
-sequenceDiagram
-    participant P as Pengguna
-    participant F as Frontend
-    participant B as Backend
-    participant DB as Database
-
-    P->>F: Klik Login/Daftar
-    F->>F: Tampilkan Form Login
-    P->>F: Masukkan Kredensial
-    F->>B: POST /api/user/login
-    B->>DB: Query Pengguna
-    DB-->>B: Data Pengguna
-    B->>B: Verifikasi Password (bcrypt)
-    B->>B: Generate Token JWT
-    B-->>F: Return Token
-    F->>F: Store Token di localStorage
-    F->>F: Set State Auth
-    F-->>P: Redirect ke Dashboard
-
-    Note over P,B: Token diperlukan untuk route terproteksi
-```
-
-## Order Processing Flow
-
-```mermaid
-sequenceDiagram
-    participant P as Pengguna
-    participant F as Frontend
-    participant B as Backend
-    participant PG as Gateway Pembayaran
-    participant DB as Database
-
-    P->>F: Tambah ke Keranjang & Checkout
-    F->>B: POST /api/orders/place (COD)
-    B->>DB: Buat Dokumen Pesanan
-    B->>DB: Kosongkan Keranjang Pengguna
-    B-->>F: Pesanan Berhasil
-    F-->>P: Konfirmasi Pesanan
-
-    P->>F: Pilih Pembayaran Online
-    F->>B: POST /api/orders/online
-    B->>PG: Buat Transaksi Pembayaran
-    PG-->>B: Return Token Pembayaran
-    B->>DB: Simpan Pesanan dengan Token
-    B-->>F: Token Pembayaran & ID Pesanan
-    F->>PG: Redirect ke Halaman Pembayaran
-    PG->>PG: Pengguna Menyelesaikan Pembayaran
-    PG-->>B: Webhook/Callback Pembayaran
-    B->>DB: Update Status Pembayaran Pesanan
-    B-->>B: Kirim Konfirmasi
-
-    Note over P,PG: Penanganan keberhasilan/kegagalan pembayaran
-```
-
-## Teknologi Yang Digunakan
-
-- **Frontend**: React 18, React Router, Axios, Tailwind CSS, Vite
-- **Backend**: Node.js, Express.js, MongoDB, Mongoose
-- **Authentication**: JWT, bcrypt
-- **File Upload**: Multer, Cloudinary
-- **Payment**: Midtrans, Stripe, Razorpay
-- **Deployment**: Vercel
-
-## Fitur Utama
-
-- 🛍️ **Platform E-commerce**: Jelajahi produk, keranjang belanja, checkout
-- 👤 **Manajemen Pengguna**: Pendaftaran, login, manajemen profil
-- ⚡ **Panel Admin**: Manajemen produk/pesanan/ulasan
-- 💳 **Opsi Pembayaran Beragam**: COD, pembayaran online
-- 📦 **Pelacakan Pesanan**: Update status pesanan waktu nyata
-- ⭐ **Sistem Ulasan**: Rating dan ulasan produk
-- 🖼️ **Manajemen Media**: Integrasi Cloudinary untuk gambar
-- 🔍 **Pencarian & Filter**: Fungsi pencarian produk canggih
+- **Tech Stack**: MERN (MongoDB, Express, React, Node.js)
+- **State Management**: React Context API
+- **Styling**: Tailwind CSS
+- **Voucher System**: Persentase/Potongan Tetap, Limit Penggunaan, Validitas Tanggal.
+- **CRM System**: Tracking Lead & History Interaksi.
+- **Finance**: Tracking Pengeluaran & Analitik Pendapatan.
+- **Returns**: Sistem pengajuan retur barang dengan upload bukti gambar.
+- **Settings**: Pengaturan website dinamis (Logo, Kontak, SEO).

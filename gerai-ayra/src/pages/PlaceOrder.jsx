@@ -9,12 +9,12 @@ import { snap } from 'midtrans-client'
 
 const loadSnapScript = () => {
   return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'; // Gunakan URL Production jika diperlukan
-      script.setAttribute('data-client-key', 'SB-Mid-client-5F2mNU-sibYhmrUq'); // Ganti dengan Client Key Anda
-      script.onload = resolve;
-      script.onerror = reject;
-      document.body.appendChild(script);
+    const script = document.createElement('script');
+    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'; // Gunakan URL Production jika diperlukan
+    script.setAttribute('data-client-key', 'SB-Mid-client-5F2mNU-sibYhmrUq'); // Ganti dengan Client Key Anda
+    script.onload = resolve;
+    script.onerror = reject;
+    document.body.appendChild(script);
   });
 };
 
@@ -22,7 +22,7 @@ const loadSnapScript = () => {
 const PlaceOrder = () => {
 
   const [method, setMethod] = useState('cod');
-  const {navigate, backendUrl, token, setToken, cartItems, setCartItems, getCartAmount, delivery_fee, products, userData} = useContext(ShopContext);
+  const { navigate, backendUrl, token, setToken, cartItems, setCartItems, getCartAmount, delivery_fee, products, userData, shippingMethods, selectedShipping, setSelectedShipping, paymentMethods, selectedPayment, setSelectedPayment, currency } = useContext(ShopContext);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -39,7 +39,7 @@ const PlaceOrder = () => {
     const name = event.target.name
     const value = event.target.value
 
-    setFormData(data => ({...data, [name]:value}))
+    setFormData(data => ({ ...data, [name]: value }))
   }
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const PlaceOrder = () => {
   const onSubmitHandler = async (event) => {
     event.preventDefault()
     try {
-      
+
       let orderItems = []
 
       for (const items in cartItems) {
@@ -81,62 +81,66 @@ const PlaceOrder = () => {
       let orderData = {
         address: formData,
         items: orderItems,
-        amount: getCartAmount() + delivery_fee
+        amount: getCartAmount() + (selectedShipping ? selectedShipping.fee : delivery_fee),
+        shippingMethod: selectedShipping ? selectedShipping.name : 'Standard'
       }
 
-      switch (method) {
+      const selectedMethodObj = paymentMethods.find(m => m.name === method) || { type: method }; // Fallback for hardcoded initial state
+
+      switch (selectedMethodObj.type) {
         // API Call for COD
         case 'cod':
-            const response = await axios.post(backendUrl + '/api/orders/place', orderData, {headers:{token}})
-            console.log(response.data);
-            if (response.data.success) {
-              setCartItems({})
-              navigate('/orders')
-            }
-            else {
-              toast.error(response.data.message)
-            }
-            break;
+          const response = await axios.post(backendUrl + '/api/orders/place', orderData, { headers: { token } })
+          if (response.data.success) {
+            setCartItems({})
+            navigate('/orders')
+          }
+          else {
+            toast.error(response.data.message)
+          }
+          break;
 
-        default:
-            break;
+        case 'automatic':
+          await loadSnapScript();
+          const onlineResponse = await axios.post(
+            backendUrl + '/api/orders/online',
+            orderData,
+            { headers: { token } }
+          );
 
-            case 'online':
-
-            await loadSnapScript();
-
-    const onlineResponse = await axios.post(
-        backendUrl + '/api/orders/online', 
-        orderData, 
-        { headers: { token } }
-    );
-
-    if (onlineResponse.data.success) {
-        const snapToken = onlineResponse.data.snapToken;
-
-        // Panggil Midtrans Snap di frontend
-        window.snap.pay(snapToken, {
-            onSuccess: function (result) {
-                console.log('Payment Success:', result);
+          if (onlineResponse.data.success) {
+            const snapToken = onlineResponse.data.snapToken;
+            window.snap.pay(snapToken, {
+              onSuccess: function (result) {
                 setCartItems({});
                 navigate('/orders');
-            },
-            onPending: function (result) {
-                console.log('Payment Pending:', result);
+              },
+              onPending: function (result) {
                 toast.info('Payment is pending. Please complete it.');
-            },
-            onError: function (result) {
-                console.error('Payment Error:', result);
+              },
+              onError: function (result) {
                 toast.error('Payment failed. Try again.');
-            },
-            onClose: function () {
+              },
+              onClose: function () {
                 toast.warning('Payment popup closed.');
-            },
-        });
-    } else {
-        toast.error(onlineResponse.data.message);
-    }
-    break;
+              },
+            });
+          } else {
+            toast.error(onlineResponse.data.message);
+          }
+          break;
+
+        default:
+          // Manual transfer logic (for now just place order as 'Manual' and maybe show instructions)
+          const manualResponse = await axios.post(backendUrl + '/api/orders/place', { ...orderData, paymentMethod: method }, { headers: { token } })
+          if (manualResponse.data.success) {
+            setCartItems({})
+            navigate('/orders')
+            toast.success("Order placed. Please follow payment instructions.")
+          } else {
+            toast.error(manualResponse.data.message)
+          }
+          break;
       }
 
     } catch (error) {
@@ -146,78 +150,179 @@ const PlaceOrder = () => {
   }
 
   return (
-    <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t w-full'>
-      {/* Left Side */}
-        <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
-            <div className='text-xl sm:text-2xl my-3'>
-              <Title text1={'DELIVERY'} text2={'INFORMATION'} />
-            </div>
-            <div className='flex gap-3'>
-                <input required onChange={onChangeHandler} name='firstName' value={formData.firstName} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="text" placeholder='First Name' />
-                <input required onChange={onChangeHandler} name='lastName' value={formData.lastName} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="text" placeholder='Last Name' />
-            </div>
-            <input required onChange={onChangeHandler} name='email' value={formData.email} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="email" placeholder='Email Adress' />
-            <input required onChange={onChangeHandler} name='street' value={formData.street} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="text" placeholder='Street' />
-            <div className='flex gap-3'>
-                <input required onChange={onChangeHandler} name='city' value={formData.city} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="text" placeholder='City' />
-                <input required onChange={onChangeHandler} name='state' value={formData.state} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="text" placeholder='State' />
-            </div>
-            <div className='flex gap-3'>
-                <input required onChange={onChangeHandler} name='zipcode' value={formData.zipcode} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="number" placeholder='Zipcode' />
-                <input required onChange={onChangeHandler} name='country' value={formData.country} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="text" placeholder='Country' />
-            </div>
-            <input required onChange={onChangeHandler} name='phone' value={formData.phone} className='border vorder-gray-300 rounded py-1.5 px-3.5 w-full' type="number" placeholder='Phone' />
-        </div>
+    <form onSubmit={onSubmitHandler} className='flex flex-col lg:flex-row justify-between gap-10 pt-5 sm:pt-14 min-h-[80vh] border-t w-full bg-slate-50/30 px-4 sm:px-0'>
 
-        {/* Right Side */}
-        <div className='mt-8 w-full max-w-80'>
-          <div className='mt-8'>
+      {/* --- LEFT SIDE: Delivery Info --- */}
+      <div className='flex flex-col gap-6 w-full lg:max-w-[500px]'>
+        <div className='bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm'>
+          <div className='text-xl sm:text-2xl mb-6'>
+            <Title text1={'DELIVERY'} text2={'INFORMATION'} />
+          </div>
+
+          <div className='space-y-4 font-inter'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1'>
+                <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>First Name</label>
+                <input required onChange={onChangeHandler} name='firstName' value={formData.firstName} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="text" />
+              </div>
+              <div className='space-y-1'>
+                <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>Last Name</label>
+                <input required onChange={onChangeHandler} name='lastName' value={formData.lastName} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="text" />
+              </div>
+            </div>
+
+            <div className='space-y-1'>
+              <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>Email Address</label>
+              <input required onChange={onChangeHandler} name='email' value={formData.email} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="email" />
+            </div>
+
+            <div className='space-y-1'>
+              <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>Street / Address</label>
+              <input required onChange={onChangeHandler} name='street' value={formData.street} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="text" />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1'>
+                <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>City</label>
+                <input required onChange={onChangeHandler} name='city' value={formData.city} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="text" />
+              </div>
+              <div className='space-y-1'>
+                <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>Province / State</label>
+                <input required onChange={onChangeHandler} name='state' value={formData.state} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="text" />
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1'>
+                <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>Zipcode</label>
+                <input required onChange={onChangeHandler} name='zipcode' value={formData.zipcode} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="number" />
+              </div>
+              <div className='space-y-1'>
+                <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>Country</label>
+                <input required onChange={onChangeHandler} name='country' value={formData.country} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="text" />
+              </div>
+            </div>
+
+            <div className='space-y-1'>
+              <label className='text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1'>Phone Number</label>
+              <input required onChange={onChangeHandler} name='phone' value={formData.phone} className='border border-slate-200 rounded-xl py-2.5 px-4 w-full focus:ring-2 focus:ring-black/5 outline-none transition-all' type="number" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- RIGHT SIDE: Order Summary & Selection --- */}
+      <div className='flex flex-col gap-6 flex-1'>
+
+        {/* Order Summary & Shipping Combined Card */}
+        <div className='bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm'>
+          <div className='text-xl sm:text-2xl mb-8'>
+            <Title text1={'ORDER'} text2={'SUMMARY'} />
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
+            <div>
               <CartTotal />
-          </div>
-          <div className='mt-12'>
-            <Title text1={'PAYMENT'} text2={'METHOD'} />
-
-            {/* Payment Method Selection */}
-            <div className='flex gap-3 flex-col lg:flex-row'>
-                <div onClick={() => setMethod('online')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
-                    <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'online' ? 'bg-green-400' : ''}`}></p>
-                    <p className='text-gray-500 text-sm font-medium mx-4'>E-WALLET</p> 
-                </div>
-                <div onClick={() => setMethod('cod')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
-                    <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'cod' ? 'bg-green-400' : ''}`}></p>
-                    <p className='text-gray-500 text-sm font-medium mx-4'>CASH ON DELIVERY</p> 
-                </div>
             </div>
 
-            <div className='w-full text-end mt-8'>
-              <button type='submit' className='bg-black text-white px-16 py-3 text-sm rounded-lg'>PLACE ORDER</button>
+            <div className='space-y-6'>
+              <h3 className='text-sm font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2'>
+                <svg className='w-4 h-4 text-orange-600' fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                Select Shipping
+              </h3>
+
+              <div className='flex flex-col gap-3'>
+                {shippingMethods.map((item) => (
+                  <div
+                    key={item._id}
+                    onClick={() => setSelectedShipping(item)}
+                    className={`group flex items-center gap-4 border-2 p-4 rounded-2xl cursor-pointer transition-all ${selectedShipping?._id === item._id ? 'border-black bg-slate-50' : 'border-slate-100 hover:border-slate-300'}`}
+                  >
+                    <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all ${selectedShipping?._id === item._id ? 'border-black' : 'border-slate-200 group-hover:border-slate-400'}`}>
+                      {selectedShipping?._id === item._id && <div className='w-2.5 h-2.5 bg-black rounded-full'></div>}
+                    </div>
+                    <div className='flex-1'>
+                      <p className='text-slate-900 text-sm font-bold'>{item.name}</p>
+                      <p className='text-slate-500 text-[10px] font-medium uppercase tracking-tighter'>{item.estimatedDays || 'Regular Delivery'}</p>
+                    </div>
+                    <p className='text-slate-900 text-sm font-black'>{currency}{item.fee}</p>
+                  </div>
+                ))}
+                {shippingMethods.length === 0 && (
+                  <div className='p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 italic text-slate-400 text-sm'>
+                    Loading delivery options...
+                  </div>
+                )}
+              </div>
             </div>
-            <br />
-            <div className="flex items-center justify-between gap-4 bg-indigo-600 px-4 py-3 text-white rounded-lg">
-  <p className="text-sm font-medium">
-    Pembayaran E-Wallet belum bisa digunakan, untuk sementara silahkan menggunakan COD
-  </p>
-
-  <button
-    aria-label="Dismiss"
-    className="shrink-0 rounded-lg bg-black/10 p-1 transition hover:bg-black/20"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" className="size-5" viewBox="0 0 20 20" fill="currentColor">
-      <path
-        fillRule="evenodd"
-        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-        clipRule="evenodd"
-      />
-    </svg>
-  </button>
-</div>
-
-
           </div>
         </div>
+
+        {/* Payment & Action Card */}
+        <div className='bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm'>
+          <div className='text-xl sm:text-2xl mb-8'>
+            <Title text1={'PAYMENT'} text2={'METHOD'} />
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 items-start'>
+            <div className='flex flex-col gap-3'>
+              {paymentMethods.map((item) => (
+                <div
+                  key={item._id}
+                  onClick={() => setMethod(item.name)}
+                  className={`group flex items-center gap-4 border-2 p-4 rounded-2xl cursor-pointer transition-all ${method === item.name ? 'border-black bg-slate-50 shadow-inner' : 'border-slate-100 hover:border-slate-300'}`}
+                >
+                  <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all ${method === item.name ? 'border-black' : 'border-slate-200 group-hover:border-slate-400'}`}>
+                    {method === item.name && <div className='w-2.5 h-2.5 bg-black rounded-full'></div>}
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${item.type === 'manual' ? 'bg-amber-50 text-amber-600' :
+                        item.type === 'automatic' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'
+                      }`}>
+                      <svg className='w-4 h-4' fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className='text-slate-900 text-sm font-bold'>{item.name}</p>
+                      <p className='text-slate-500 text-[10px] font-medium'>{item.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {paymentMethods.length === 0 && (
+                <>
+                  {/* Default fallback if no payment methods in DB */}
+                  <div onClick={() => setMethod('online')} className={`group flex items-center gap-4 border-2 p-4 rounded-2xl cursor-pointer transition-all ${method === 'online' ? 'border-black bg-slate-50 shadow-inner' : 'border-slate-100 hover:border-slate-300'}`}>
+                    <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all ${method === 'online' ? 'border-black' : 'border-slate-200 group-hover:border-slate-400'}`}>
+                      {method === 'online' && <div className='w-2.5 h-2.5 bg-black rounded-full'></div>}
+                    </div>
+                    <p className='text-slate-900 text-sm font-bold'>E-WALLET & VA</p>
+                  </div>
+                  <div onClick={() => setMethod('cod')} className={`group flex items-center gap-4 border-2 p-4 rounded-2xl cursor-pointer transition-all ${method === 'cod' ? 'border-black bg-slate-50 shadow-inner' : 'border-slate-100 hover:border-slate-300'}`}>
+                    <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all ${method === 'cod' ? 'border-black' : 'border-slate-200 group-hover:border-slate-400'}`}>
+                      {method === 'cod' && <div className='w-2.5 h-2.5 bg-black rounded-full'></div>}
+                    </div>
+                    <p className='text-slate-900 text-sm font-bold'>CASH ON DELIVERY</p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className='flex flex-col justify-end h-full'>
+          
+
+              <button type='submit' className='w-full bg-black text-white px-10 py-4 text-sm font-black rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-black/10 flex items-center justify-center gap-3'>
+                PLACE ORDER
+                <svg className='w-4 h-4' fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </form>
   )
 }
-
 
 export default PlaceOrder

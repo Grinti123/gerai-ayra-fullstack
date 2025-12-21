@@ -113,4 +113,57 @@ sequenceDiagram
     DB-->>API: Success
     API-->>AdminPanel: Voucher Created
     AdminPanel->>AdminPanel: Refresh List
+
+## 5. Return & Exchange Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant ReturnModel
+    participant OrderModel
+
+    User->>Frontend: Select "Request Return" on Order
+    Frontend->>User: Show Return Form (Reason, Images)
+    User->>Frontend: Submit Return Request
+    Frontend->>API: POST /api/orders/return/create
+    API->>OrderModel: Verify Order Status (must be Delivered)
+    OrderModel-->>API: Valid
+    API->>ReturnModel: Save Return Document (Status: Pending)
+    ReturnModel-->>API: Success
+    API-->>Frontend: Success Message
+    Frontend-->>User: Show Confirmation
+
+    Note over API,ReturnModel: Admin processes return in dashboard
+    API->>ReturnModel: Update Status (Approved/Rejected)
+```
+
+## 6. CRM Lead & Interaction Flow
+```mermaid
+sequenceDiagram
+    participant Visitor
+    participant Admin
+    participant Frontend
+    participant API
+    participant LeadModel
+    participant InteractionModel
+
+    Visitor->>Frontend: Submit Contact/Inquiry Form
+    Frontend->>API: POST /api/crm/lead/add
+    API->>LeadModel: Create Lead Document
+    LeadModel-->>API: Success
+    API-->>Frontend: Success Message
+
+    Admin->>Frontend: Open CRM Dashboard
+    Frontend->>API: GET /api/crm/leads
+    API->>LeadModel: Fetch Leads
+    LeadModel-->>API: Lead List
+    API-->>Frontend: Display Leads
+
+    Admin->>Frontend: Add Interaction Note (e.g., WhatsApp Call)
+    Frontend->>API: POST /api/crm/interaction/add
+    API->>InteractionModel: Save Interaction for Lead ID
+    InteractionModel-->>API: Success
+    API-->>Frontend: Note Saved
+```
 ```

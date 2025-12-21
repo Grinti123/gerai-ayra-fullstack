@@ -3,10 +3,22 @@ import axios from 'axios'
 import { backendUrl, currency } from '../App'
 import { toast } from 'react-toastify'
 
-const List = ({token}) => {
+const List = ({ token }) => {
   const [list, setList] = useState([])
   const [editingProduct, setEditingProduct] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const [categories, setCategories] = useState([])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(backendUrl + '/api/category/list')
+      if (response.data.success) {
+        setCategories(response.data.categories)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const fetchList = async () => {
     try {
@@ -30,7 +42,7 @@ const List = ({token}) => {
     }
 
     try {
-      const response = await axios.post(backendUrl + '/api/product/remove', {id}, {headers:{token}})
+      const response = await axios.post(backendUrl + '/api/product/remove', { id }, { headers: { token } })
       if (response.data.success) {
         toast.success(response.data.message)
         await fetchList();
@@ -50,8 +62,8 @@ const List = ({token}) => {
       name: product.name,
       description: product.description,
       price: product.price,
+      gender: product.gender,
       category: product.category,
-      subCategory: product.subCategory,
       sizes: product.sizes.join(', '),
       bestseller: product.bestseller || false
     })
@@ -111,6 +123,7 @@ const List = ({token}) => {
 
   useEffect(() => {
     fetchList()
+    fetchCategories()
   }, [])
 
   return (
@@ -148,22 +161,31 @@ const List = ({token}) => {
                     />
                   </div>
                   <div>
+                    <label className='block text-sm font-medium mb-2 text-slate-700'>Gender</label>
+                    <select
+                      value={editForm.gender || ''}
+                      onChange={(e) => handleEditChange('gender', e.target.value)}
+                      className='w-full border-2 border-slate-200 rounded-lg px-4 py-3 text-sm focus:border-blue-400 focus:outline-none transition-colors'
+                    >
+                      <option value="Men">Pria</option>
+                      <option value="Women">Wanita</option>
+                      <option value="Kids">Anak</option>
+                    </select>
+                  </div>
+                  <div>
                     <label className='block text-sm font-medium mb-2 text-slate-700'>Category</label>
-                    <input
-                      type='text'
+                    <select
                       value={editForm.category || ''}
                       onChange={(e) => handleEditChange('category', e.target.value)}
                       className='w-full border-2 border-slate-200 rounded-lg px-4 py-3 text-sm focus:border-blue-400 focus:outline-none transition-colors'
-                    />
-                  </div>
-                  <div>
-                    <label className='block text-sm font-medium mb-2 text-slate-700'>Sub-Category</label>
-                    <input
-                      type='text'
-                      value={editForm.subCategory || ''}
-                      onChange={(e) => handleEditChange('subCategory', e.target.value)}
-                      className='w-full border-2 border-slate-200 rounded-lg px-4 py-3 text-sm focus:border-blue-400 focus:outline-none transition-colors'
-                    />
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat._id} value={cat.name}>{cat.name}</option>
+                      ))}
+                      {categories.length === 0 && (
+                        <option value={editForm.category}>{editForm.category}</option>
+                      )}
+                    </select>
                   </div>
                   <div>
                     <label className='block text-sm font-medium mb-2 text-slate-700'>Sizes</label>
@@ -204,10 +226,10 @@ const List = ({token}) => {
                 </div>
               ) : (
                 <div className='flex gap-6 transition-transform hover:scale-[1.01]'>
-                  <img className='w-20 h-20 object-cover rounded-xl shadow-sm' src={item.image[0]} alt="" />
+                  <img className='w-20 h-20 object-cover rounded-xl shadow-sm' src={item.image && item.image.length > 0 ? item.image[0] : 'https://via.placeholder.com/100x100?text=No+Img'} alt="" />
                   <div className='flex-1'>
                     <h3 className='font-semibold text-slate-800 text-lg'>{item.name}</h3>
-                    <p className='text-sm text-slate-500 mb-2'>{item.category} • {item.subCategory}</p>
+                    <p className='text-sm text-slate-500 mb-2'>{item.gender} • {item.category}</p>
                     <p className='text-lg font-bold text-emerald-600'>{currency}{item.price}</p>
                     <div className='flex flex-wrap gap-2 mt-3'>
                       {item.sizes.map((size, sizeIndex) => (
@@ -269,7 +291,7 @@ const List = ({token}) => {
                     {editingProduct === item._id ? (
                       <>
                         <td className='px-4 py-3'>
-                          <img className='w-12 h-12 object-cover rounded' src={item.image[0]} alt="" />
+                          <img className='w-12 h-12 object-cover rounded' src={item.image && item.image.length > 0 ? item.image[0] : 'https://via.placeholder.com/50x50?text=No+Img'} alt="" />
                         </td>
                         <td className='px-4 py-3'>
                           <input
@@ -288,20 +310,27 @@ const List = ({token}) => {
                           />
                         </td>
                         <td className='px-4 py-3'>
-                          <input
-                            type='text'
+                          <select
+                            value={editForm.gender || ''}
+                            onChange={(e) => handleEditChange('gender', e.target.value)}
+                            className='w-full border border-gray-300 rounded px-2 py-1 text-sm'
+                          >
+                            <option value="Men">Pria</option>
+                            <option value="Women">Wanita</option>
+                            <option value="Kids">Anak</option>
+                          </select>
+                          <select
                             value={editForm.category || ''}
                             onChange={(e) => handleEditChange('category', e.target.value)}
-                            className='w-full border border-gray-300 rounded px-2 py-1 text-sm'
-                            placeholder='Category'
-                          />
-                          <input
-                            type='text'
-                            value={editForm.subCategory || ''}
-                            onChange={(e) => handleEditChange('subCategory', e.target.value)}
                             className='w-full border border-gray-300 rounded px-2 py-1 mt-1 text-sm'
-                            placeholder='Sub-category'
-                          />
+                          >
+                            {categories.map((cat) => (
+                              <option key={cat._id} value={cat.name}>{cat.name}</option>
+                            ))}
+                            {categories.length === 0 && (
+                              <option value={editForm.category}>{editForm.category}</option>
+                            )}
+                          </select>
                         </td>
                         <td className='px-4 py-3'>
                           <input
@@ -353,7 +382,7 @@ const List = ({token}) => {
                     ) : (
                       <>
                         <td className='px-4 py-3'>
-                          <img className='w-12 h-12 object-cover rounded' src={item.image[0]} alt="" />
+                          <img className='w-12 h-12 object-cover rounded' src={item.image && item.image.length > 0 ? item.image[0] : 'https://via.placeholder.com/50x50?text=No+Img'} alt="" />
                         </td>
                         <td className='px-4 py-3'>
                           <div className='flex items-center gap-3'>
@@ -370,10 +399,10 @@ const List = ({token}) => {
                         </td>
                         <td className='px-4 py-3'>
                           <span className='bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium'>
-                            {item.category}
+                            {item.gender}
                           </span>
-                          {item.subCategory && (
-                            <div className='text-xs text-gray-500 mt-1'>{item.subCategory}</div>
+                          {item.category && (
+                            <div className='text-xs text-gray-500 mt-1'>{item.category}</div>
                           )}
                         </td>
                         <td className='px-4 py-3 font-medium'>{currency}{item.price}</td>

@@ -1,6 +1,6 @@
-# Activity Diagrams - Gerai Ayra
+# Activity Diagrams - Gerai Ayra Fullstack
 
-## 1. User Shopping Activity
+## 1. User Shopping & Post-Purchase Activity
 ```mermaid
 stateDiagram-v2
     [*] --> BrowseProducts
@@ -37,10 +37,21 @@ stateDiagram-v2
 
     ConfirmOrder --> OrderPlaced
     ReturnToStore --> OrderPlaced
-    OrderPlaced --> [*]
+    OrderPlaced --> TrackOrder
+    
+    state TrackOrder {
+        [*] --> AwaitDelivery
+        AwaitDelivery --> Received
+        Received --> WriteReview
+        Received --> RequestReturn : If Problematic
+        WriteReview --> [*]
+        RequestReturn --> [*]
+    }
+    
+    TrackOrder --> [*]
 ```
 
-## 2. Admin Management Activity
+## 2. Admin Management Activity (Full Backoffice)
 ```mermaid
 stateDiagram-v2
     [*] --> AdminLogin
@@ -48,34 +59,59 @@ stateDiagram-v2
     AdminLogin --> AdminLogin : Invalid Credentials
 
     state Dashboard {
-        [*] --> SelectAction
-        SelectAction --> ManageProducts
-        SelectAction --> ManageOrders
-        SelectAction --> ManageVouchers
+        [*] --> ViewAnalytics
+        ViewAnalytics --> SelectModule
         
-        state ManageProducts {
+        state ManageCatalog {
             [*] --> ListProducts
+            ListProducts --> ManageCategories
             ListProducts --> AddProduct
             ListProducts --> EditProduct
-            ListProducts --> DeleteProduct
             AddProduct --> [*]
-            EditProduct --> [*]
-            DeleteProduct --> [*]
+            ManageCategories --> [*]
         }
 
-        state ManageOrders {
+        state ManageSales {
             [*] --> ViewOrders
-            ViewOrders --> UpdateStatus
-            UpdateStatus --> [*]
+            ViewOrders --> UpdateOrderStatus
+            ViewOrders --> ManageReturns
+            ManageReturns --> Approve_Reject
+            Approve_Reject --> [*]
         }
 
-        state ManageVouchers {
+        state ManageCRM {
+            [*] --> ListLeads
+            ListLeads --> AddInteraction
+            AddInteraction --> [*]
+        }
+
+        state ManageFinance {
+            [*] --> ViewReports
+            ViewReports --> InputExpense
+            InputExpense --> [*]
+        }
+        
+        state ManageMarketing {
             [*] --> ListVouchers
             ListVouchers --> CreateVoucher
-            ListVouchers --> DeleteVoucher
+            ListVouchers --> ModerateReviews
             CreateVoucher --> [*]
-            DeleteVoucher --> [*]
         }
+
+        state ManageSettings {
+            [*] --> SiteConfig
+            SiteConfig --> UpdatePaymentMethods
+            SiteConfig --> UpdateShippingFees
+            SiteConfig --> UpdateSEOSettings
+            UpdateSEOSettings --> [*]
+        }
+
+        SelectModule --> ManageCatalog
+        SelectModule --> ManageSales
+        SelectModule --> ManageCRM
+        SelectModule --> ManageFinance
+        SelectModule --> ManageMarketing
+        SelectModule --> ManageSettings
     }
 
     Dashboard --> Logout

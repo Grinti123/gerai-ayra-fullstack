@@ -149,6 +149,61 @@ flowchart TD
     class AdminStart,EndAdmin,Dashboard,CheckStock,UpdateStock,LowStockAlert,Restock,StockReport,QuantityInput,SaveStock,SupplierNotification,ManualReorder default
 ```
 
+## Sub-Proses: Penanganan Retur & Pengembalian
+
+```mermaid
+flowchart TD
+    StartRetur([Pelanggan Ajukan Retur]) --> VerifyOrder[Verifikasi Status Pesanan]
+    VerifyOrder --> IsDelivered{Sudah Terkirim?}
+    IsDelivered -->|Tidak| RejectPolicy[Tolak - Belum Terkirim]
+    IsDelivered -->|Ya| FormRetur[Isi Form Retur & Upload Bukti]
+    
+    FormRetur --> AdminReview[Review Admin]
+    AdminReview --> Approval{Disetujui?}
+    
+    Approval -->|Tidak| NotifyReject[Notifikasi Penolakan]
+    Approval -->|Ya| ReturnMethod{Metode Retur}
+    
+    ReturnMethod -->|Tukar| ShipBack[Kirim Barang Kembali]
+    ReturnMethod -->|Refund| ProcessRefund[Proses Pengembalian Dana]
+    
+    ShipBack --> SendNew[Kirim Barang Pengganti]
+    SendNew --> EndRetur([Retur Selesai])
+    ProcessRefund --> EndRetur
+    NotifyReject --> EndRetur
+    RejectPolicy --> EndRetur
+
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
+    class StartRetur,EndRetur,VerifyOrder,FormRetur,AdminReview,NotifyReject,ShipBack,SendNew,ProcessRefund default
+```
+
+## Sub-Proses: Manajemen Hubungan Pelanggan (CRM)
+
+```mermaid
+flowchart TD
+    StartCRM([Data Calon Pelanggan]) --> CaptureLead[Catat Sebagai Lead]
+    CaptureLead --> AssignAdmin[Penugasan Admin CRM]
+    
+    AssignAdmin --> Interaction{Aksi Komunikasi}
+    Interaction -->|WhatsApp| WAInteraction[Kirim Pesan WA]
+    Interaction -->|Email| EmailInteraction[Kirim Email Penawaran]
+    Interaction -->|Note| ManualNote[Catat Catatan Internal]
+    
+    WAInteraction --> LogHistory[Simpan Riwayat Interaksi]
+    EmailInteraction --> LogHistory
+    ManualNote --> LogHistory
+    
+    LogHistory --> ConvertStatus{Konversi?}
+    ConvertStatus -->|Ya| UpdateCustomer[Update Jadi Pelanggan Tetap]
+    ConvertStatus -->|Tidak| FollowUp[Jadwalkan Follow-up]
+    
+    UpdateCustomer --> EndCRM([Selesai])
+    FollowUp --> Interaction
+
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
+    class StartCRM,EndCRM,CaptureLead,AssignAdmin,WAInteraction,EmailInteraction,ManualNote,LogHistory,UpdateCustomer,FollowUp default
+```
+
 ## Pool dan Lane: Stakeholders
 
 ```mermaid
@@ -249,10 +304,10 @@ flowchart TD
 
 | Elemen BPMN | Jumlah | Kegunaan |
 |-------------|---------|----------|
-| Start Events | 3 | Titik masuk berbagai proses |
-| End Events | 5 | Penyelesaian semua flow |
-| Tasks | 28 | Operasi bisnis individual |
-| Gateways | 8 | Keputusan dalam proses |
+| Start Events | 5 | Titik masuk berbagai proses |
+| End Events | 7 | Penyelesaian semua flow |
+| Tasks | 42 | Operasi bisnis individual |
+| Gateways | 12 | Keputusan dalam proses |
 | Pools | 5 | Stakeholder utama |
 | Lanes | 5 | Sub-proses per stakeholder |
 

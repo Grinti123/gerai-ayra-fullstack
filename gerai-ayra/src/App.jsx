@@ -12,6 +12,12 @@ import About from './pages/About'
 import Profile from './pages/Profile'
 import TermsConditions from './pages/TermsConditions'
 import FAQPage from './pages/FAQPage'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import Blog from './pages/Blog'
+import BlogDetail from './pages/BlogDetail'
+import Promotions from './pages/Promotions'
+import Wishlist from './pages/Wishlist'
+import MyReturns from './pages/MyReturns'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SearchBar from './components/SearchBar'
@@ -38,6 +44,12 @@ const App = () => {
         <Route path='/profile' element={<Profile />} />
         <Route path='/terms-conditions' element={<TermsConditions />} />
         <Route path='/faq' element={<FAQPage />} />
+        <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+        <Route path='/blog' element={<Blog />} />
+        <Route path='/blog/:id' element={<BlogDetail />} />
+        <Route path='/promotions' element={<Promotions />} />
+        <Route path='/wishlist' element={<Wishlist />} />
+        <Route path='/returns' element={<MyReturns />} />
       </Routes>
       <Footer />
     </div>

@@ -13,9 +13,15 @@ const ShopContextProvider = (props) => {
     const [search, setSearch] = useState('');
     const [showSearch, setShowSearch] = useState(false)
     const [cartItems, setCartItems] = useState({});
+    const [wishlistItems, setWishlistItems] = useState({});
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('')
     const [userData, setUserData] = useState({})
+    const [shippingMethods, setShippingMethods] = useState([]);
+    const [selectedShipping, setSelectedShipping] = useState(null);
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [selectedPayment, setSelectedPayment] = useState(null);
+    const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
 
 
@@ -44,7 +50,43 @@ const ShopContextProvider = (props) => {
 
         if (token) {
             try {
-                await axios.post(backendUrl + '/api/cart/add', {itemId, size}, {headers:{token}})
+                await axios.post(backendUrl + '/api/cart/add', { itemId, size }, { headers: { token } })
+            } catch (error) {
+                console.log(error);
+                toast.error(error.message)
+            }
+        }
+    }
+
+    const addToWishlist = async (itemId) => {
+        if (!token) {
+            toast.error('Please login to add to wishlist');
+            return;
+        }
+
+        let wishlistData = structuredClone(wishlistItems);
+        wishlistData[itemId] = true;
+        setWishlistItems(wishlistData);
+
+        try {
+            const response = await axios.post(backendUrl + '/api/wishlist/add', { itemId }, { headers: { token } })
+            if (response.data.success) {
+                toast.success('Added to Wishlist');
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+        }
+    }
+
+    const removeFromWishlist = async (itemId) => {
+        let wishlistData = structuredClone(wishlistItems);
+        delete wishlistData[itemId];
+        setWishlistItems(wishlistData);
+
+        if (token) {
+            try {
+                await axios.post(backendUrl + '/api/wishlist/remove', { itemId }, { headers: { token } })
             } catch (error) {
                 console.log(error);
                 toast.error(error.message)
@@ -54,19 +96,19 @@ const ShopContextProvider = (props) => {
 
     const getCartCount = () => {
         let totalCount = 0;
-        for(const items in cartItems) {
-            for(const item in cartItems[items]) {
+        for (const items in cartItems) {
+            for (const item in cartItems[items]) {
                 try {
                     if (cartItems[items][item] > 0) {
                         totalCount += cartItems[items][item];
                     }
                 } catch (error) {
-                    
+
                 }
             }
         }
         return totalCount;
-    } 
+    }
 
     const updateQuantity = async (itemId, size, quantity) => {
         let cartData = structuredClone(cartItems);
@@ -77,7 +119,7 @@ const ShopContextProvider = (props) => {
 
         if (token) {
             try {
-                await axios.post(backendUrl + '/api/cart/update', {itemId, size, quantity}, {headers:{token}})
+                await axios.post(backendUrl + '/api/cart/update', { itemId, size, quantity }, { headers: { token } })
             } catch (error) {
                 console.log(error);
                 toast.error(error.message)
@@ -95,7 +137,7 @@ const ShopContextProvider = (props) => {
                         totalAmount += itemInfo.price * cartItems[items][item];
                     }
                 } catch (error) {
-                    
+
                 }
             }
         }
@@ -105,22 +147,22 @@ const ShopContextProvider = (props) => {
     const getProductsData = async () => {
         try {
             const response = await axios.get(backendUrl + '/api/product/list');
-            if(response.data.success) {
+            if (response.data.success) {
                 setProducts(response.data.products)
             }
             else {
                 toast.error(response.data.message)
             }
-            
+
         } catch (error) {
             console.log(error);
             toast.error(error.message)
         }
     }
 
-    const getUserCart = async ( token ) => {
+    const getUserCart = async (token) => {
         try {
-            const response = await axios.post(backendUrl + '/api/cart/get', {}, {headers:{token}})
+            const response = await axios.post(backendUrl + '/api/cart/get', {}, { headers: { token } })
             if (response.data.success) {
                 setCartItems(response.data.cartData)
             }
@@ -130,9 +172,21 @@ const ShopContextProvider = (props) => {
         }
     }
 
+    const getUserWishlist = async (token) => {
+        try {
+            const response = await axios.post(backendUrl + '/api/wishlist/get', {}, { headers: { token } })
+            if (response.data.success) {
+                setWishlistItems(response.data.wishlistData)
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+        }
+    }
+
     const getUserProfile = async (token) => {
         try {
-            const response = await axios.post(backendUrl + '/api/user/profile', {}, {headers:{token}})
+            const response = await axios.post(backendUrl + '/api/user/profile', {}, { headers: { token } })
             if (response.data.success) {
                 setUserData(response.data.userData)
             }
@@ -142,8 +196,50 @@ const ShopContextProvider = (props) => {
         }
     }
 
+    const getShippingMethods = async () => {
+        try {
+            const response = await axios.get(backendUrl + '/api/shipping/list');
+            if (response.data.success) {
+                const activeMethods = response.data.shippingMethods.filter(m => m.isActive);
+                setShippingMethods(activeMethods);
+                if (activeMethods.length > 0) {
+                    setSelectedShipping(activeMethods[0]);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const getPaymentMethods = async () => {
+        try {
+            const response = await axios.get(backendUrl + '/api/payment/list');
+            if (response.data.success) {
+                const activeMethods = response.data.paymentMethods.filter(m => m.isActive);
+                setPaymentMethods(activeMethods);
+                // We won't set a default selected payment here to keep PlaceOrder's initial state if needed
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const getCategoriesData = async () => {
+        try {
+            const response = await axios.get(backendUrl + '/api/category/list');
+            if (response.data.success) {
+                setCategories(response.data.categories.filter(c => c.isActive));
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         getProductsData()
+        getShippingMethods()
+        getPaymentMethods()
+        getCategoriesData()
     }, [])
 
     useEffect(() => {
@@ -151,6 +247,7 @@ const ShopContextProvider = (props) => {
             setToken(localStorage.getItem('token'))
             getUserCart(localStorage.getItem('token'))
             getUserProfile(localStorage.getItem('token'))
+            getUserWishlist(localStorage.getItem('token'))
         }
     }, [])
 
@@ -158,10 +255,14 @@ const ShopContextProvider = (props) => {
         products, currency, delivery_fee,
         search, setSearch, showSearch, setShowSearch,
         cartItems, addToCart, setCartItems,
+        wishlistItems, addToWishlist, removeFromWishlist, getUserWishlist,
         getCartCount, updateQuantity,
         getCartAmount, navigate,
         backendUrl, setToken, token,
         userData, setUserData, getUserProfile,
+        shippingMethods, selectedShipping, setSelectedShipping,
+        paymentMethods, selectedPayment, setSelectedPayment,
+        categories
     }
 
     return (

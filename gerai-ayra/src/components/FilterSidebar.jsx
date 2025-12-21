@@ -1,41 +1,45 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
+import { ShopContext } from '../context/ShopContext'
 
-const FilterSidebar = ({ 
-    showFilter, 
-    setShowFilter, 
-    category, 
-    subCategory, 
-    toggleCategory, 
-    toggleSubCategory,
-    clearFilters 
+const FilterSidebar = ({
+    showFilter,
+    setShowFilter,
+    gender,
+    category,
+    toggleGender,
+    toggleCategory,
+    clearFilters
 }) => {
-    const categories = [
+    const { categories: dynamicCategories } = useContext(ShopContext);
+
+    const genders = [
         { value: 'Men', label: 'Laki-laki' },
         { value: 'Women', label: 'Wanita' },
         { value: 'Kids', label: 'Anak' }
     ];
 
-    const subCategories = [
-        { value: 'Topwear', label: 'Atasan' },
-        { value: 'Bottomwear', label: 'Bawahan' },
-        { value: 'Winterwear', label: 'Pakaian Musim Dingin' }
-    ];
+    const categories = dynamicCategories.length > 0
+        ? dynamicCategories.map(cat => ({ value: cat.name, label: cat.name }))
+        : [
+            { value: 'Atasan', label: 'Atasan' },
+            { value: 'Bawahan', label: 'Bawahan' },
+            { value: 'Tas', label: 'Tas' }
+        ];
 
     const CustomCheckbox = ({ checked, onChange, label }) => (
         <label className='flex items-center gap-3 cursor-pointer group p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200'>
             <div className='relative'>
-                <input 
-                    type="checkbox" 
+                <input
+                    type="checkbox"
                     checked={checked}
                     onChange={onChange}
                     className='sr-only'
                 />
-                <div className={`w-5 h-5 rounded-lg border-2 transition-all duration-300 flex items-center justify-center ${
-                    checked 
-                        ? 'bg-gradient-to-r from-accent-500 to-primary-500 border-accent-500 scale-110' 
-                        : 'border-gray-300 group-hover:border-accent-300'
-                }`}>
+                <div className={`w-5 h-5 rounded-lg border-2 transition-all duration-300 flex items-center justify-center ${checked
+                    ? 'bg-gradient-to-r from-accent-500 to-primary-500 border-accent-500 scale-110'
+                    : 'border-gray-300 group-hover:border-accent-300'
+                    }`}>
                     {checked && (
                         <svg className='w-3 h-3 text-white animate-scale-in' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={3} d='M5 13l4 4L19 7' />
@@ -44,9 +48,8 @@ const FilterSidebar = ({
                 </div>
             </div>
             <div className='flex items-center gap-2 flex-1'>
-                <span className={`font-medium transition-colors duration-200 ${
-                    checked ? 'text-gray-900' : 'text-gray-700 group-hover:text-gray-900'
-                }`}>
+                <span className={`font-medium transition-colors duration-200 ${checked ? 'text-gray-900' : 'text-gray-700 group-hover:text-gray-900'
+                    }`}>
                     {label}
                 </span>
             </div>
@@ -58,8 +61,8 @@ const FilterSidebar = ({
             {/* Filter Header */}
             <div className='sticky top-4 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden'>
                 {/* Mobile Toggle Header */}
-                <div 
-                    onClick={() => setShowFilter(!showFilter)} 
+                <div
+                    onClick={() => setShowFilter(!showFilter)}
                     className='flex items-center justify-between p-6 cursor-pointer sm:cursor-default bg-gradient-to-r from-accent-50 to-primary-50'
                 >
                     <div className='flex items-center gap-3'>
@@ -70,9 +73,9 @@ const FilterSidebar = ({
                         </div>
                         <h2 className='text-xl font-bold text-gray-900'>Filters</h2>
                     </div>
-                    
+
                     <div className='flex items-center gap-2'>
-                        {(category.length > 0 || subCategory.length > 0) && (
+                        {(gender.length > 0 || category.length > 0) && (
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -83,18 +86,35 @@ const FilterSidebar = ({
                                 Clear All
                             </button>
                         )}
-                        <img 
-                            src={assets.dropdown_icon} 
-                            className={`h-4 sm:hidden transition-transform duration-300 ${showFilter ? 'rotate-180' : ''}`} 
-                            alt="toggle" 
+                        <img
+                            src={assets.dropdown_icon}
+                            className={`h-4 sm:hidden transition-transform duration-300 ${showFilter ? 'rotate-180' : ''}`}
+                            alt="toggle"
                         />
                     </div>
                 </div>
 
                 {/* Filter Content */}
                 <div className={`${showFilter ? 'block' : 'hidden'} sm:block`}>
-                    {/* Category Filter */}
+                    {/* Gender Filter */}
                     <div className='p-6 border-b border-gray-100'>
+                        <h3 className='text-lg font-semibold text-gray-900 mb-4'>
+                            Gender
+                        </h3>
+                        <div className='space-y-1'>
+                            {genders.map((g) => (
+                                <CustomCheckbox
+                                    key={g.value}
+                                    checked={gender.includes(g.value)}
+                                    onChange={(e) => toggleGender(e, g.value)}
+                                    label={g.label}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Category Filter */}
+                    <div className='p-6'>
                         <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                             Kategori
                         </h3>
@@ -105,23 +125,6 @@ const FilterSidebar = ({
                                     checked={category.includes(cat.value)}
                                     onChange={(e) => toggleCategory(e, cat.value)}
                                     label={cat.label}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* SubCategory Filter */}
-                    <div className='p-6'>
-                        <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-                            Tipe Pakaian
-                        </h3>
-                        <div className='space-y-1'>
-                            {subCategories.map((subCat) => (
-                                <CustomCheckbox
-                                    key={subCat.value}
-                                    checked={subCategory.includes(subCat.value)}
-                                    onChange={(e) => toggleSubCategory(e, subCat.value)}
-                                    label={subCat.label}
                                 />
                             ))}
                         </div>

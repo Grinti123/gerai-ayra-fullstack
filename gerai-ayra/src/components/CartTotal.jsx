@@ -5,12 +5,13 @@ import VoucherInput from './VoucherInput'
 import VoucherList from './VoucherList'
 
 const CartTotal = () => {
-    const { currency, delivery_fee, getCartAmount } = useContext(ShopContext)
+    const { currency, delivery_fee, getCartAmount, selectedShipping } = useContext(ShopContext)
     const [appliedVoucher, setAppliedVoucher] = useState(null)
 
+    const current_shipping_fee = selectedShipping ? selectedShipping.fee : delivery_fee
     const subtotal = getCartAmount()
     const discount = appliedVoucher ? appliedVoucher.discountAmount : 0
-    const total = subtotal === 0 ? 0 : subtotal - discount + delivery_fee
+    const total = subtotal === 0 ? 0 : subtotal - discount + current_shipping_fee
 
     const handleVoucherApplied = (voucher) => {
         setAppliedVoucher(voucher)
@@ -60,7 +61,7 @@ const CartTotal = () => {
 
                 <div className='flex justify-between'>
                     <p>Shipping Fee</p>
-                    <p>{currency} {delivery_fee}.00</p>
+                    <p>{currency} {current_shipping_fee}.00</p>
                 </div>
                 <hr />
 

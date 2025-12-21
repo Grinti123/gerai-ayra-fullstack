@@ -4,7 +4,7 @@ import productModel from '../models/productModel.js'
 // function: Add product
 const addProduct = async (req, res) => {
     try {
-        const {name, description, price, category, subCategory, sizes, bestseller} = req.body;
+        const { name, description, price, gender, category, sizes, bestseller } = req.body;
 
         const image1 = req.files.image1 && req.files.image1[0]
         const image2 = req.files.image2 && req.files.image2[0]
@@ -15,7 +15,7 @@ const addProduct = async (req, res) => {
 
         let imagesUrl = await Promise.all(
             images.map(async (item) => {
-                let result = await cloudinary.uploader.upload(item.path, {resource_type:'image'});
+                let result = await cloudinary.uploader.upload(item.path, { resource_type: 'image' });
                 return result.secure_url
             })
         )
@@ -23,51 +23,52 @@ const addProduct = async (req, res) => {
         const productData = {
             name,
             description,
+            gender,
             category,
             price: Number(price),
-            subCategory,
             bestseller: bestseller === "true" ? true : false,
             sizes: JSON.parse(sizes),
+            stock: JSON.parse(sizes).reduce((acc, size) => ({ ...acc, [size]: 0 }), {}),
             image: imagesUrl,
             date: Date.now()
         }
 
         console.log(productData);
-        
+
         const product = new productModel(productData);
         await product.save()
-        
-        res.json({success:true, message:"Product Added"})
+
+        res.json({ success: true, message: "Product Added" })
 
     } catch (error) {
         console.log(error);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 // function: List Product
 const listProduct = async (req, res) => {
     try {
-        
+
         const products = await productModel.find({});
-        res.json({success:true, products})
+        res.json({ success: true, products })
 
     } catch (error) {
         console.log(error);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 // function: Removing Product
 const removeProduct = async (req, res) => {
     try {
-        
+
         await productModel.findByIdAndDelete(req.body.id)
-        res.json({success:true, message:"Product Remove"})
+        res.json({ success: true, message: "Product Remove" })
 
     } catch (error) {
         console.log(error);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
@@ -75,14 +76,14 @@ const removeProduct = async (req, res) => {
 const singleProduct = async (req, res) => {
 
     try {
-        
+
         const { productId } = req.body
         const product = await productModel.findById(productId)
-        res.json({success:true, product})
+        res.json({ success: true, product })
 
     } catch (error) {
         console.log(error);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 
 }
@@ -91,7 +92,7 @@ const singleProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     try {
-        const { id, name, description, price, category, subCategory, sizes, bestseller } = req.body;
+        const { id, name, description, price, gender, category, sizes, bestseller } = req.body;
 
         const updateData = {};
 
@@ -103,10 +104,22 @@ const updateProduct = async (req, res) => {
         // For other fields, only add them if they are provided and not empty
         if (typeof name === 'string' && name.trim() !== '') updateData.name = name.trim();
         if (typeof description === 'string' && description.trim() !== '') updateData.description = description.trim();
+        if (typeof gender === 'string' && gender.trim() !== '') updateData.gender = gender.trim();
         if (typeof category === 'string' && category.trim() !== '') updateData.category = category.trim();
-        if (typeof subCategory === 'string' && subCategory.trim() !== '') updateData.subCategory = subCategory.trim();
         if (price !== undefined && !isNaN(price) && price !== '') updateData.price = Number(price);
-        if (sizes !== undefined) updateData.sizes = sizes;
+        if (sizes !== undefined) {
+            updateData.sizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
+            // Ensure stock object has keys for all sizes
+            const product = await productModel.findById(id);
+            if (product) {
+                const currentStock = product.stock || {};
+                const newStock = {};
+                updateData.sizes.forEach(size => {
+                    newStock[size] = currentStock[size] !== undefined ? currentStock[size] : 0;
+                });
+                updateData.stock = newStock;
+            }
+        }
 
         const product = await productModel.findById(id);
         if (!product) {
@@ -116,10 +129,14 @@ const updateProduct = async (req, res) => {
         // Update only the fields that are provided
         if (updateData.name !== undefined) product.name = updateData.name;
         if (updateData.description !== undefined) product.description = updateData.description;
+        if (updateData.gender !== undefined) product.gender = updateData.gender;
         if (updateData.category !== undefined) product.category = updateData.category;
-        if (updateData.subCategory !== undefined) product.subCategory = updateData.subCategory;
         if (updateData.price !== undefined) product.price = updateData.price;
         if (updateData.sizes !== undefined) product.sizes = updateData.sizes;
+        if (updateData.stock !== undefined) {
+            product.stock = updateData.stock;
+            product.markModified('stock');
+        }
         if (updateData.bestseller !== undefined) product.bestseller = updateData.bestseller;
 
         await product.save();
@@ -136,4 +153,4 @@ const updateProduct = async (req, res) => {
     }
 };
 
-export {addProduct, listProduct, removeProduct, singleProduct, updateProduct};
+export { addProduct, listProduct, removeProduct, singleProduct, updateProduct };

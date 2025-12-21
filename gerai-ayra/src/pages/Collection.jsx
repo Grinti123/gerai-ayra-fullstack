@@ -9,35 +9,35 @@ const Collection = () => {
   const { products, search, showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
+  const [gender, setGender] = useState([]);
   const [category, setCategory] = useState([]);
-  const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState('relevant')
   const [viewMode, setViewMode] = useState('grid')
   const [isLoading, setIsLoading] = useState(true)
 
+  const toggleGender = (e, value) => {
+    const genderValue = value || e.target.value;
+    if (gender.includes(genderValue)) {
+      setGender(prev => prev.filter(item => item !== genderValue))
+    }
+    else {
+      setGender(prev => [...prev, genderValue])
+    }
+  }
+
   const toggleCategory = (e, value) => {
     const categoryValue = value || e.target.value;
     if (category.includes(categoryValue)) {
-      setCategory(prev=> prev.filter(item => item !== categoryValue))
+      setCategory(prev => prev.filter(item => item !== categoryValue))
     }
     else {
       setCategory(prev => [...prev, categoryValue])
     }
   }
 
-  const toggleSubCategory = (e, value) => {
-    const subCategoryValue = value || e.target.value;
-    if (subCategory.includes(subCategoryValue)) {
-      setSubCategory(prev=> prev.filter(item => item !== subCategoryValue))
-    }
-    else {
-      setSubCategory(prev => [...prev, subCategoryValue])
-    }
-  }
-
   const clearFilters = () => {
+    setGender([]);
     setCategory([]);
-    setSubCategory([]);
   }
 
   const applyFilter = () => {
@@ -47,13 +47,22 @@ const Collection = () => {
       productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
     }
 
-    if (category.length > 0) {
-      productsCopy = productsCopy.filter(item => category.includes(item.category));
+    if (gender.length > 0) {
+      productsCopy = productsCopy.filter(item => {
+        // Handle old data (where category was gender) and new data (where gender is gender)
+        const itemGender = item.gender || (item.subCategory ? item.category : null);
+        return gender.includes(itemGender);
+      });
     }
 
-    if (subCategory.length > 0) {
-      productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
+    if (category.length > 0) {
+      productsCopy = productsCopy.filter(item => {
+        // Handle old data (where subCategory was category) and new data (where category is category)
+        const itemCategory = item.subCategory ? item.subCategory : item.category;
+        return category.includes(itemCategory);
+      });
     }
+
     setFilterProducts(productsCopy)
   }
 
@@ -66,10 +75,10 @@ const Collection = () => {
       case 'high-low':
         setFilterProducts(fpCopy.sort((a, b) => (b.price - a.price)));
         break;
-      
-        default:
-          applyFilter();
-          break;
+
+      default:
+        applyFilter();
+        break;
     }
   }
 
@@ -81,7 +90,7 @@ const Collection = () => {
       setIsLoading(false);
     }, 500);
     return () => clearTimeout(timer);
-  }, [category, subCategory, search, showSearch, products])
+  }, [gender, category, search, showSearch, products])
 
   useEffect(() => {
     sortProduct();
@@ -107,17 +116,17 @@ const Collection = () => {
     <div className='min-h-screen bg-gradient-to-b from-white via-gray-50/50 to-accent-50/30 pt-8'>
       {/* Background Pattern */}
       <div className='absolute inset-0 bg-hero-pattern opacity-5 pointer-events-none'></div>
-      
+
       <div className='relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex flex-col lg:flex-row gap-8'>
           {/* Filter Sidebar */}
           <FilterSidebar
             showFilter={showFilter}
             setShowFilter={setShowFilter}
+            gender={gender}
             category={category}
-            subCategory={subCategory}
+            toggleGender={toggleGender}
             toggleCategory={toggleCategory}
-            toggleSubCategory={toggleSubCategory}
             clearFilters={clearFilters}
           />
 
@@ -133,14 +142,13 @@ const Collection = () => {
             />
 
             {/* Products Grid/List */}
-            <div className='animate-fade-in-up' style={{animationDelay: '0.3s'}}>
+            <div className='animate-fade-in-up' style={{ animationDelay: '0.3s' }}>
               {isLoading ? (
                 // Loading Skeletons
-                <div className={`grid gap-6 ${
-                  viewMode === 'grid' 
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                    : 'grid-cols-1'
-                }`}>
+                <div className={`grid gap-6 ${viewMode === 'grid'
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                  : 'grid-cols-1'
+                  }`}>
                   {[...Array(8)].map((_, index) => (
                     <ProductSkeleton key={index} />
                   ))}
@@ -149,22 +157,21 @@ const Collection = () => {
                 // Actual Products
                 <>
                   {filterProducts.length > 0 ? (
-                    <div className={`grid gap-6 transition-all duration-500 ${
-                      viewMode === 'grid' 
-                        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                        : 'grid-cols-1 max-w-4xl'
-                    }`}>
+                    <div className={`grid gap-6 transition-all duration-500 ${viewMode === 'grid'
+                      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                      : 'grid-cols-1 max-w-4xl'
+                      }`}>
                       {filterProducts.map((item, index) => (
-                        <div 
-                          key={item._id} 
+                        <div
+                          key={item._id}
                           className='animate-fade-in-up'
-                          style={{animationDelay: `${index * 0.1}s`}}
+                          style={{ animationDelay: `${index * 0.1}s` }}
                         >
-                          <ProductItem 
-                            id={item._id} 
-                            name={item.name} 
-                            price={item.price} 
-                            image={item.image} 
+                          <ProductItem
+                            id={item._id}
+                            name={item.name}
+                            price={item.price}
+                            image={item.image}
                           />
                         </div>
                       ))}
@@ -180,7 +187,7 @@ const Collection = () => {
                         </div>
                         <h3 className='text-xl font-semibold text-gray-900 mb-2'>No products found</h3>
                         <p className='text-gray-600 mb-6'>Try adjusting your filters or search terms</p>
-                        <button 
+                        <button
                           onClick={clearFilters}
                           className='px-6 py-3 bg-accent-600 text-white rounded-xl hover:bg-accent-700 transition-colors duration-200 font-medium'
                         >

@@ -1,10 +1,10 @@
-# Use Case Diagrams - "Classic" Style
+# Use Case Diagrams - Gerai Ayra Fullstack
 
 > Diagram ini menggunakan format standar UML Use Case dengan batasan sistem (System Boundary), Aktor di luar sistem, dan Use Case (elips) di dalam sistem.
 
 ## 1. Customer Use Case Diagram
 
-Menggambarkan interaksi Pelanggan dengan Sistem E-Commerce Gerai Ayra.
+Menggambarkan interaksi Pelanggan dengan Sistem E-Commerce Gerai Ayra termasuk fitur baru seperti Wishlist dan Pengembalian.
 
 ```mermaid
 graph LR
@@ -27,14 +27,15 @@ graph LR
         UC4([Cari Produk])
         UC5([Lihat Detail])
         UC6([Tambah ke Keranjang])
+        UC19([Tambah ke Wishlist])
         UC18([Gunakan Voucher])
         
-        %% Checkout Use Cases
+        %% Checkout & Orders
         UC9([Checkout Pesanan])
-        UC10([Bayar COD])
         UC11([Bayar Online])
         UC12([Lacak Pesanan])
         UC13([Tulis Ulasan])
+        UC20([Ajukan Retur/Tukar])
     end
 
     %% Actor Relationships
@@ -44,6 +45,8 @@ graph LR
     C --> UC9
     C --> UC12
     C --> UC14
+    C --> UC19
+    C --> UC20
 
     %% Internal Relationships (Include/Extend)
     UC3 -.->|<<extend>>| UC4
@@ -51,10 +54,9 @@ graph LR
     UC6 -.->|<<include>>| UC2
     UC6 -.->|<<extend>>| UC18
     
-    UC9 -->|<<include>>| UC10
     UC9 -->|<<include>>| UC11
-    
     UC12 -.->|<<extend>>| UC13
+    UC12 -.->|<<extend>>| UC20
 
     %% External System Relationship
     UC11 --> PG
@@ -65,22 +67,13 @@ graph LR
     style UC1 fill:#fff,stroke:#333,stroke-width:1px
     style UC2 fill:#fff,stroke:#333,stroke-width:1px
     style UC3 fill:#fff,stroke:#333,stroke-width:1px
-    style UC4 fill:#fff,stroke:#333,stroke-width:1px
-    style UC5 fill:#fff,stroke:#333,stroke-width:1px
-    style UC6 fill:#fff,stroke:#333,stroke-width:1px
-    style UC18 fill:#fff,stroke:#333,stroke-width:1px
-    style UC9 fill:#fff,stroke:#333,stroke-width:1px
-    style UC10 fill:#fff,stroke:#333,stroke-width:1px
-    style UC11 fill:#fff,stroke:#333,stroke-width:1px
-    style UC12 fill:#fff,stroke:#333,stroke-width:1px
-    style UC14 fill:#fff,stroke:#333,stroke-width:1px
-    style UC15 fill:#fff,stroke:#333,stroke-width:1px
-    style UC13 fill:#fff,stroke:#333,stroke-width:1px
+    style UC19 fill:#fff,stroke:#333,stroke-width:1px
+    style UC20 fill:#fff,stroke:#333,stroke-width:1px
 ```
 
 ## 2. Admin Use Case Diagram
 
-Menggambarkan interaksi Admin dengan Panel Admin untuk manajemen sistem.
+Menggambarkan interaksi Admin dengan Panel Admin untuk manajemen sistem yang lebih luas (CRM, Analytics, Finance, dsb).
 
 ```mermaid
 graph LR
@@ -95,69 +88,64 @@ graph LR
         %% Auth
         UA1([Login Admin])
         
-        %% Product Mgmt
-        UA3([Kelola Produk])
-        UA4([Tambah Produk])
-        UA5([Edit Produk])
-        UA6([Hapus Produk])
-        
-        %% Voucher Mgmt
+        %% Core Mgmt
+        UA3([Kelola Produk & Kategori])
+        UA7([Kelola Pesanan & Retur])
         UA15([Kelola Voucher])
-        UA16([Tambah Voucher])
-        UA17([Hapus Voucher])
         
-        %% Order Mgmt
-        UA7([Kelola Pesanan])
-        UA8([Update Status])
-        
-        %% Other
+        %% CRM & Marketing
+        UA21([Kelola Leads & Interaction])
         UA9([Moderasi Ulasan])
-        UA11([Dashboard & Laporan])
+        
+        %% Finance & Analytics
+        UA22([Input Pengeluaran/Expense])
+        UA11([Dashboard & Analytics])
+        
+        %% Configuration
+        UA23([Konfigurasi Payment & Shipping])
+        UA24([Update Pengaturan Situs])
     end
 
     %% Actor Links
     A --> UA1
     A --> UA3
-    A --> UA15
     A --> UA7
-    A --> UA9
+    A --> UA15
+    A --> UA21
+    A --> UA22
     A --> UA11
+    A --> UA23
+    A --> UA24
 
-    %% Includes/Extends
-    UA3 -.->|<<include>>| UA4
-    UA3 -.->|<<include>>| UA5
-    UA3 -.->|<<include>>| UA6
-    
-    UA15 -.->|<<include>>| UA16
-    UA15 -.->|<<include>>| UA17
-    
-    UA7 -.->|<<include>>| UA8
-
-    %% External Links
-    UA4 --> CL
-    UA5 --> CL
+    %% Internal Details (Hidden for clarity in main view, but part of logic)
+    UA3 -.->|<<include>>| CL
+    UA7 -.->|<<include>>| UA8([Update Status])
 
     %% Styling
     style A fill:#f9f9f9,stroke:#333,stroke-width:2px
     style CL fill:#f9f9f9,stroke:#333,stroke-width:2px
     style UA1 fill:#fff,stroke:#333,stroke-width:1px
     style UA3 fill:#fff,stroke:#333,stroke-width:1px
-    style UA4 fill:#fff,stroke:#333,stroke-width:1px
-    style UA5 fill:#fff,stroke:#333,stroke-width:1px
-    style UA6 fill:#fff,stroke:#333,stroke-width:1px
-    style UA15 fill:#fff,stroke:#333,stroke-width:1px
-    style UA16 fill:#fff,stroke:#333,stroke-width:1px
-    style UA17 fill:#fff,stroke:#333,stroke-width:1px
-    style UA7 fill:#fff,stroke:#333,stroke-width:1px
-    style UA8 fill:#fff,stroke:#333,stroke-width:1px
-    style UA9 fill:#fff,stroke:#333,stroke-width:1px
+    style UA21 fill:#fff,stroke:#333,stroke-width:1px
+    style UA22 fill:#fff,stroke:#333,stroke-width:1px
     style UA11 fill:#fff,stroke:#333,stroke-width:1px
+    style UA23 fill:#fff,stroke:#333,stroke-width:1px
+    style UA24 fill:#fff,stroke:#333,stroke-width:1px
 ```
 
+### Penambahan Fitur Terbaru
+Berdasarkan pembaruan codebase, diagram di atas kini mencakup:
+1.  **Sistem Retur (Return/Exchange)**: Pelanggan dapat mengajukan pengembalian, dan Admin dapat mengelola statusnya.
+2.  **CRM (Customer Relationship Management)**: Fitur pengelolaan Lead (calon pelanggan) dan Interaction (catatan komunikasi via WhatsApp/Email).
+3.  **Analytics & Page Views**: Pemantauan statistik pengunjung harian.
+4.  **Expense Tracking**: Pencatatan biaya operasional atau pembelian stok oleh Admin.
+5.  **Category Management**: Pemisahan logika kategori produk yang lebih terstruktur.
+6.  **Shipping & Payment Configuration**: Pengaturan metode pengiriman dan pembayaran langsung dari panel admin.
+7.  **Wishlist**: Kemampuan pelanggan untuk menyimpan produk favorit.
+8.  **Site Settings**: Pengaturan SEO, Logo, Favicon, dan informasi kontak secara dinamis.
+
 ### Keterangan Simbol
-- **Kotak Besar**: Batasan Sistem (System Boundary), semua yang ada di dalam adalah fungsionalitas aplikasi.
-- **Orang (Silhouette)**: Aktor (Pengguna atau Sistem Lain) yang berinteraksi dengan sistem.
-- **Elips**: Use Case (Fitur/Fungsi).
-- **Garis Panah Biasa**: Asosiasi langsung antara Aktor dan Use Case.
-- **Garis Putus-Putus (<<include>>)**: Use case wajib yang merupakan bagian dari use case lain.
-- **Garis Putus-Putus (<<extend>>)**: Use case opsional yang memperluas fungsionalitas use case lain.
+- **Kotak Besar**: Batasan Sistem (System Boundary).
+- **Aktor**: Entitas luar (Manusia atau Layanan Cloud).
+- **Elips**: Use Case (Fungsi spesifik).
+- **Lines**: Relasi interaksi.
