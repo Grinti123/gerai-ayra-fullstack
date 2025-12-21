@@ -1,169 +1,169 @@
 # Sequence Diagrams - Gerai Ayra
 
-## 1. Authentication Flow
+## 1. Alur Otentikasi
 ```mermaid
 sequenceDiagram
-    participant User
+    participant User as Pengguna
     participant Frontend
     participant API
-    participant DB
+    participant DB as Database
 
-    User->>Frontend: Click Login
-    Frontend->>User: Show Login Form
-    User->>Frontend: Enter Email & Password
+    User->>Frontend: Klik Login
+    Frontend->>User: Tampilkan Form Login
+    User->>Frontend: Masukkan Email & Password
     Frontend->>API: POST /api/user/login
-    API->>DB: Find User by Email
-    DB-->>API: User Data
-    API->>API: Verify Password (bcrypt)
-    alt Valid Credentials
-        API->>API: Generate JWT Token
-        API-->>Frontend: Success + Token
-        Frontend->>Frontend: Store Token
-        Frontend-->>User: Redirect to Home
-    else Invalid Credentials
-        API-->>Frontend: Error Message
-        Frontend-->>User: Show Error
+    API->>DB: Cari Pengguna berdasarkan Email
+    DB-->>API: Data Pengguna
+    API->>API: Verifikasi Password (bcrypt)
+    alt Kredensial Valid
+        API->>API: Generate Token JWT
+        API-->>Frontend: Sukses + Token
+        Frontend->>Frontend: Simpan Token
+        Frontend-->>User: Alihkan ke Beranda
+    else Kredensial Tidak Valid
+        API-->>Frontend: Pesan Error
+        Frontend-->>User: Tampilkan Error
     end
 ```
 
-## 2. Cart & Voucher Application Flow
+## 2. Alur Keranjang & Penerapan Voucher
 ```mermaid
 sequenceDiagram
-    participant User
+    participant User as Pengguna
     participant Frontend
     participant API
     participant VoucherModel
     participant CartModel
 
-    User->>Frontend: Add Item to Cart
+    User->>Frontend: Tambah Item ke Keranjang
     Frontend->>API: POST /api/cart/add {itemId, size}
-    API->>CartModel: Update User Cart
-    CartModel-->>API: Success
-    API-->>Frontend: Updated Cart Data
+    API->>CartModel: Update Keranjang Pengguna
+    CartModel-->>API: Sukses
+    API-->>Frontend: Data Keranjang Terupdate
 
-    User->>Frontend: Enter Voucher Code
+    User->>Frontend: Masukkan Kode Voucher
     Frontend->>API: POST /api/voucher/apply {code, cartAmount}
-    API->>VoucherModel: Find Voucher by Code
-    VoucherModel-->>API: Voucher Data
+    API->>VoucherModel: Cari Voucher berdasarkan Kode
+    VoucherModel-->>API: Data Voucher
 
     alt Voucher Valid
-        API->>API: Validate Date & Usage Limit
-        API->>API: Validate Min Purchase
-        API->>API: Calculate Discount
-        API-->>Frontend: Success + Discount Info
-        Frontend->>Frontend: Update Cart Total Display
-    else Voucher Invalid
-        API-->>Frontend: Error (Invalid/Expired)
-        Frontend-->>User: Show Error Message
+        API->>API: Validasi Tanggal & Batas Penggunaan
+        API->>API: Validasi Minimal Belanja
+        API->>API: Hitung Diskon
+        API-->>Frontend: Sukses + Info Diskon
+        Frontend->>Frontend: Update Tampilan Total Keranjang
+    else Voucher Tidak Valid
+        API-->>Frontend: Error (Tidak Valid/Kadaluarsa)
+        Frontend-->>User: Tampilkan Pesan Error
     end
 ```
 
-## 3. Order Placement Flow
+## 3. Alur Pembuatan Pesanan
 ```mermaid
 sequenceDiagram
-    participant User
+    participant User as Pengguna
     participant Frontend
     participant API
     participant OrderModel
     participant PaymentGateway
 
-    User->>Frontend: Proceed to Checkout
-    Frontend->>User: Confirm Address & Payment Method
-    User->>Frontend: Place Order
+    User->>Frontend: Lanjut ke Checkout
+    Frontend->>User: Konfirmasi Alamat & Metode Pembayaran
+    User->>Frontend: Buat Pesanan
     
-    alt Payment Method: COD
+    alt Metode Pembayaran: COD
         Frontend->>API: POST /api/orders/place
-        API->>OrderModel: Create Order (Status: Order Placed)
+        API->>OrderModel: Buat Pesanan (Status: Order Placed)
         OrderModel-->>API: Order ID
-        API-->>Frontend: Success
-        Frontend-->>User: Show Success Page
-    else Payment Method: Online
+        API-->>Frontend: Sukses
+        Frontend-->>User: Tampilkan Halaman Sukses
+    else Metode Pembayaran: Online
         Frontend->>API: POST /api/orders/online
-        API->>PaymentGateway: Create Transaction
-        PaymentGateway-->>API: Payment Token
-        API->>OrderModel: Create Order (Status: Pending Payment)
-        API-->>Frontend: Payment Token
-        Frontend->>PaymentGateway: Open Payment Popup
-        User->>PaymentGateway: Complete Payment
-        PaymentGateway-->>API: Webhook (Success)
-        API->>OrderModel: Update Order (Payment: true)
+        API->>PaymentGateway: Buat Transaksi
+        PaymentGateway-->>API: Token Pembayaran
+        API->>OrderModel: Buat Pesanan (Status: Pending Payment)
+        API-->>Frontend: Token Pembayaran
+        Frontend->>PaymentGateway: Buka Popup Pembayaran
+        User->>PaymentGateway: Selesaikan Pembayaran
+        PaymentGateway-->>API: Webhook (Sukses)
+        API->>OrderModel: Update Pesanan (Payment: true)
     end
 ```
 
-## 4. Admin Voucher Management
+## 4. Manajemen Voucher Admin
 ```mermaid
 sequenceDiagram
     participant Admin
-    participant AdminPanel
+    participant AdminPanel as Panel Admin
     participant API
-    participant DB
+    participant DB as Database
 
-    Admin->>AdminPanel: Navigate to Voucher Page
+    Admin->>AdminPanel: Buka Halaman Voucher
     AdminPanel->>API: GET /api/voucher/list
-    API->>DB: Fetch All Vouchers
-    DB-->>API: Voucher List
-    API-->>AdminPanel: Return Vouchers
-    AdminPanel-->>Admin: Show Voucher Table
+    API->>DB: Ambil Semua Voucher
+    DB-->>API: Daftar Voucher
+    API-->>AdminPanel: Kembalikan Data Voucher
+    AdminPanel-->>Admin: Tampilkan Tabel Voucher
 
-    Admin->>AdminPanel: Click "Add Voucher"
-    AdminPanel-->>Admin: Show Form
-    Admin->>AdminPanel: Submit Voucher Details
+    Admin->>AdminPanel: Klik "Tambah Voucher"
+    AdminPanel-->>Admin: Tampilkan Form
+    Admin->>AdminPanel: Kirim Detail Voucher
     AdminPanel->>API: POST /api/voucher/create
-    API->>DB: Save New Voucher
-    DB-->>API: Success
-    API-->>AdminPanel: Voucher Created
-    AdminPanel->>AdminPanel: Refresh List
+    API->>DB: Simpan Voucher Baru
+    DB-->>API: Sukses
+    API-->>AdminPanel: Voucher Dibuat
+    AdminPanel->>AdminPanel: Refresh Daftar
 ```
 
-## 5. Return & Exchange Flow
+## 5. Alur Pengembalian & Penukaran
 ```mermaid
 sequenceDiagram
-    participant User
+    participant User as Pengguna
     participant Frontend
     participant API
     participant ReturnModel
     participant OrderModel
 
-    User->>Frontend: Select "Request Return" on Order
-    Frontend->>User: Show Return Form (Reason, Images)
-    User->>Frontend: Submit Return Request
+    User->>Frontend: Pilih "Ajukan Pengembalian" pada Pesanan
+    Frontend->>User: Tampilkan Form Pengembalian (Alasan, Foto)
+    User->>Frontend: Kirim Permintaan Pengembalian
     Frontend->>API: POST /api/orders/return/create
-    API->>OrderModel: Verify Order Status (must be Delivered)
+    API->>OrderModel: Verifikasi Status Pesanan (harus Delivered)
     OrderModel-->>API: Valid
-    API->>ReturnModel: Save Return Document (Status: Pending)
-    ReturnModel-->>API: Success
-    API-->>Frontend: Success Message
-    Frontend-->>User: Show Confirmation
+    API->>ReturnModel: Simpan Dokumen Pengembalian (Status: Pending)
+    ReturnModel-->>API: Sukses
+    API-->>Frontend: Pesan Sukses
+    Frontend-->>User: Tampilkan Konfirmasi
 
-    Note over API,ReturnModel: Admin processes return in dashboard
-    API->>ReturnModel: Update Status (Approved/Rejected)
+    Note over API,ReturnModel: Admin memproses pengembalian di dashboard
+    API->>ReturnModel: Update Status (Disetujui/Ditolak)
 ```
 
-## 6. CRM Lead & Interaction Flow
+## 6. Alur Prospek & Interaksi CRM
 ```mermaid
 sequenceDiagram
-    participant Visitor
+    participant Visitor as Pengunjung
     participant Admin
     participant Frontend
     participant API
     participant LeadModel
     participant InteractionModel
 
-    Visitor->>Frontend: Submit Contact/Inquiry Form
+    Visitor->>Frontend: Kirim Form Kontak/Pertanyaan
     Frontend->>API: POST /api/crm/lead/add
-    API->>LeadModel: Create Lead Document
-    LeadModel-->>API: Success
-    API-->>Frontend: Success Message
+    API->>LeadModel: Buat Dokumen Prospek
+    LeadModel-->>API: Sukses
+    API-->>Frontend: Pesan Sukses
 
-    Admin->>Frontend: Open CRM Dashboard
+    Admin->>Frontend: Buka Dashboard CRM
     Frontend->>API: GET /api/crm/leads
-    API->>LeadModel: Fetch Leads
-    LeadModel-->>API: Lead List
-    API-->>Frontend: Display Leads
+    API->>LeadModel: Ambil Data Prospek
+    LeadModel-->>API: Daftar Prospek
+    API-->>Frontend: Tampilkan Prospek
 
-    Admin->>Frontend: Add Interaction Note (e.g., WhatsApp Call)
+    Admin->>Frontend: Tambah Catatan Interaksi (misal: Panggilan WA)
     Frontend->>API: POST /api/crm/interaction/add
-    API->>InteractionModel: Save Interaction for Lead ID
-    InteractionModel-->>API: Success
-    API-->>Frontend: Note Saved
+    API->>InteractionModel: Simpan Interaksi untuk ID Prospek
+    InteractionModel-->>API: Sukses
+    API-->>Frontend: Catatan Disimpan
 ```
