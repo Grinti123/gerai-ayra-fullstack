@@ -113,6 +113,7 @@ sequenceDiagram
     DB-->>API: Success
     API-->>AdminPanel: Voucher Created
     AdminPanel->>AdminPanel: Refresh List
+```
 
 ## 5. Return & Exchange Flow
 ```mermaid
@@ -165,5 +166,4 @@ sequenceDiagram
     API->>InteractionModel: Save Interaction for Lead ID
     InteractionModel-->>API: Success
     API-->>Frontend: Note Saved
-```
 ```

@@ -363,23 +363,26 @@ sequenceDiagram
     participant DB as Database
 
     P->>F: Tambah ke Keranjang & Checkout
-    F->>B: POST /api/orders/place (COD)
-    B->>DB: Buat Dokumen Pesanan
-    B->>DB: Kosongkan Keranjang Pengguna
-    B-->>F: Pesanan Berhasil
-    F-->>P: Konfirmasi Pesanan
 
-    P->>F: Pilih Pembayaran Online
-    F->>B: POST /api/orders/online
-    B->>PG: Buat Transaksi Pembayaran
-    PG-->>B: Return Token Pembayaran
-    B->>DB: Simpan Pesanan dengan Token
-    B-->>F: Token Pembayaran & ID Pesanan
-    F->>PG: Redirect ke Halaman Pembayaran
-    PG->>PG: Pengguna Menyelesaikan Pembayaran
-    PG-->>B: Webhook/Callback Pembayaran
-    B->>DB: Update Status Pembayaran Pesanan
-    B-->>B: Kirim Konfirmasi
+    alt Pembayaran COD
+        F->>B: POST /api/orders/place (COD)
+        B->>DB: Buat Dokumen Pesanan
+        B->>DB: Kosongkan Keranjang Pengguna
+        B-->>F: Pesanan Berhasil
+        F-->>P: Konfirmasi Pesanan
+    else Pembayaran Online
+        P->>F: Pilih Pembayaran Online
+        F->>B: POST /api/orders/online
+        B->>PG: Buat Transaksi Pembayaran
+        PG-->>B: Return Token Pembayaran
+        B->>DB: Simpan Pesanan dengan Token
+        B-->>F: Token Pembayaran & ID Pesanan
+        F->>PG: Redirect ke Halaman Pembayaran
+        PG->>PG: Pengguna Menyelesaikan Pembayaran
+        PG-->>B: Webhook/Callback Pembayaran
+        B->>DB: Update Status Pembayaran Pesanan
+        B-->>B: Kirim Konfirmasi
+    end
 
     Note over P,PG: Penanganan keberhasilan/kegagalan pembayaran
 ```
