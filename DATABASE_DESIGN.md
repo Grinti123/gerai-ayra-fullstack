@@ -161,6 +161,50 @@ erDiagram
     }
 ```
 
+### 1.1 Penjelasan Hubungan Entitas & Kardinalitas
+
+Berikut adalah detail hubungan antar entitas beserta kardinalitasnya:
+
+#### A. Pengguna & Transaksi
+*   **Users - Orders (One-to-Many / 1:N)**:
+    *   Satu `User` (pengguna) dapat melakukan banyak `Orders` (transaksi/pesanan).
+    *   Satu `Order` hanya dimiliki oleh satu `User` tertentu.
+*   **Users - Reviews (One-to-Many / 1:N)**:
+    *   Satu `User` dapat menulis banyak `Reviews` untuk berbagai produk.
+    *   Setiap `Review` ditulis oleh satu `User`.
+*   **Users - Returns (One-to-Many / 1:N)**:
+    *   Satu `User` dapat mengajukan beberapa permeintaan `Returns`.
+    *   Satu pengajuan `Return` terkait dengan satu `User`.
+
+#### B. Produk & Kategori
+*   **Categories - Products (One-to-Many / 1:N)**:
+    *   Satu `Category` dapat menampung banyak `Products`.
+    *   Satu `Product` (dalam desain ini) terasosiasi dengan satu `Category` utama.
+*   **Products - Reviews (One-to-Many / 1:N)**:
+    *   Satu `Product` dapat memiliki banyak `Reviews`.
+    *   Satu `Review` spesifik membahas satu `Product`.
+*   **Products - OrderItems (One-to-Many / 1:N)**:
+    *   Satu `Product` dapat muncul di banyak baris item pesanan (`OrderItems`) yang berbeda.
+
+#### C. Pesanan & Logistik
+*   **Orders - OrderItems (One-to-Many / 1:N)**:
+    *   Satu `Order` terdiri dari banyak `OrderItems` (misal: Baju A uk. M, Celana B uk. L).
+    *   Setiap `OrderItem` adalah bagian dari satu `Order`.
+*   **Orders - Returns (One-to-One / 1:1 - Optional)**:
+    *   Satu `Order` idealnya hanya memiliki satu status pengajuan `Return` aktif (jika ada).
+    *   Tidak semua order memiliki return (opsional/nullable).
+*   **Shippings - Orders (One-to-Many / 1:N)**:
+    *   Satu metode `Shipping` (JNE/J&T) dapat digunakan untuk mengirim banyak `Orders`.
+    *   Satu `Order` dikirim menggunakan satu metode `Shipping`.
+
+#### D. Pemasaran (Marketing) & CRM
+*   **Vouchers - Products/Categories (One-to-Many / 1:N)**:
+    *   Satu `Voucher` dapat berlaku untuk banyak `Products` atau `Categories`.
+*   **Users/Leads - Interactions (One-to-Many / 1:N)**:
+    *   Satu `User` atau `Lead` (calon pelanggan) dapat memiliki banyak catatan `Interactions` (Riwayat chat/telpon).
+    *   Setiap `Interaction` merujuk pada satu subjek (User/Lead).
+
+
 ---
 
 ## 2. Sampling Design Struktur Table (Schema Lengkap)
