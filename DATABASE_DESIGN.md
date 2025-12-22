@@ -14,17 +14,21 @@ erDiagram
     Users ||--o{ Orders : "places"
     Users ||--o{ Reviews : "writes"
     Users ||--o{ Returns : "requests"
-    Users ||--o{ Interactions : "has"
+    Users ||--o{ Interactions : "has activity"
     
-    Products ||--o{ Reviews : "has"
-    Products ||--o{ OrderItems : "contained in"
+    Products ||--o{ Reviews : "receives"
+    Products ||--o{ OrderItems : "included in"
+    Categories ||--|{ Products : "classifies"
     
     Orders ||--|{ OrderItems : "contains"
-    Orders ||--o{ Returns : "referenced by"
+    Orders ||--|| Returns : "has return request"
+    Shippings ||--o{ Orders : "delivers"
     
-    Vouchers ||--o{ Products : "applies to"
-    Leads ||--o{ Interactions : "has"
-
+    Vouchers ||--o{ Products : "valid for"
+    Vouchers ||--o{ Categories : "valid for"
+    
+    Leads ||--o{ Interactions : "tracked in"
+    
     Users {
         ObjectId _id PK
         String name
@@ -32,27 +36,64 @@ erDiagram
         String password
         Object address
         Object cartData
-        String role
+        String role "user/admin"
     }
 
     Products {
         ObjectId _id PK
         String name
+        String description
         Number price
-        Object stock
+        Object stock "By Size"
         Array sizes
-        String category
+        String category FK
         Array image
+        Boolean bestseller
+    }
+
+    Categories {
+        ObjectId _id PK
+        String name UK
+        String description
+        String image
     }
 
     Orders {
         ObjectId _id PK
         String userId FK
-        Array items
         Number amount
         String status
         String paymentMethod
         Boolean payment
+        String shippingMethod FK
+        Date date
+    }
+
+    OrderItems {
+        String name
+        Number quantity
+        String size
+        Number price
+    }
+
+    Reviews {
+        ObjectId _id PK
+        String productId FK
+        String userId FK
+        String userName
+        Number rating
+        String comment
+        Date date
+    }
+
+    Returns {
+        ObjectId _id PK
+        String orderId FK
+        String userId FK
+        String type "Return/Exchange"
+        String reason
+        String status
+        Array images
     }
 
     Vouchers {
@@ -60,27 +101,63 @@ erDiagram
         String code UK
         String discountType
         Number discountValue
+        Number minPurchase
         Date validUntil
+        Boolean isActive
     }
 
     Leads {
         ObjectId _id PK
+        String name
         String email UK
+        String phone
         String source
         String status
     }
     
+    Interactions {
+        ObjectId _id PK
+        String referenceId FK "User/Lead ID"
+        String type "Call/Email"
+        String notes
+        Date date
+    }
+
     Expenses {
         ObjectId _id PK
         String title
         Number amount
         String category
+        Date date
     }
 
     Shippings {
         ObjectId _id PK
         String name
         Number fee
+        String estimatedDays
+    }
+    
+    Payments {
+        ObjectId _id PK
+        String name
+        String type "Manual/Auto"
+        String details
+        Boolean isActive
+    }
+
+    Settings {
+        ObjectId _id PK
+        String siteName
+        String contactEmail
+        String currency
+    }
+
+    Analytics {
+        ObjectId _id PK
+        Date date
+        Number visitors
+        Number pageViews
     }
 ```
 
