@@ -13,10 +13,10 @@ classDiagram
         +String name
         +String description
         +Number price
-        +Array image
+        +String[] image
         +String category
         +String subCategory
-        +Array sizes
+        +String[] sizes
         +Boolean bestseller
         +Number date
         +Date createdAt
@@ -36,7 +36,7 @@ classDiagram
     class Order {
         +ObjectId _id
         +String userId
-        +Array items
+        +Object[] items
         +Number amount
         +Object address
         +String status
@@ -68,20 +68,20 @@ classDiagram
         +Date validFrom
         +Date validUntil
         +Boolean isActive
-        +Array~ObjectId~ applicableProducts
-        +Array~String~ applicableCategories
+        +ObjectId[] applicableProducts
+        +String[] applicableCategories
         +Date createdAt
         +Date updatedAt
     }
 
-    class Return {
+    class ReturnRequest {
         +ObjectId _id
         +String orderId
         +String userId
-        +Array items
+        +Object[] items
         +String type
         +String reason
-        +Array images
+        +String[] images
         +String status
         +String adminComment
         +Number date
@@ -168,11 +168,11 @@ classDiagram
     Product "1" --> "0..*" Review : receives
     Order "1" --> "1..*" Product : contains
     Voucher "0..*" --> "0..*" Product : applies to
-    Return "1" --> "1" Order : associated with
-    Return "1" --> "1" User : requested by
+    ReturnRequest "1" --> "1" Order : associated with
+    ReturnRequest "1" --> "1" User : requested by
     Product "0..*" --> "1" Category : belongs to
-    Interaction "0..*" --> "1" User : relates to (Type: User)
-    Interaction "0..*" --> "1" Lead : relates to (Type: Lead)
+    Interaction "0..*" --> "1" User : relates to
+    Interaction "0..*" --> "1" Lead : relates to
     Order "0..*" --> "1" Shipping : uses
     Order "0..*" --> "1" Payment : processed via
 ```
