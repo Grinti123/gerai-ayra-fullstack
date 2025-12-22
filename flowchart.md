@@ -10,7 +10,7 @@ graph TD
     C --> D
     D --> E[Database MongoDB]
     D --> F[Cloudinary untuk Gambar]
-    D --> G[Gateway Pembayaran<br/>Midtrans/Stripe/Razorpay]
+    D --> G[Gateway Pembayaran<br/>Midtran]
 
     classDef default fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000000
     class A,B,C,D,E,F,G default
