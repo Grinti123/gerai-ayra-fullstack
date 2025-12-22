@@ -1,7 +1,7 @@
 # Dokumen Analisis Kebutuhan Sistem - Gerai Ayra Fullstack
 
 **Tanggal Dokumen:** 22 Desember 2025  
-**Versi:** 3.2 (Final Detailed)  
+**Versi:** 3.3 (Detailed with Use Case)  
 **Status:** Approved
 
 ---
@@ -24,9 +24,55 @@ Dokumen ini mendefinisikan kebutuhan sistem untuk platform E-commerce "Gerai Ayr
 
 ---
 
-## 3. Kebutuhan Fungsional (Functional Requirements)
+## 3. Use Case Diagram
 
-### 3.1 Modul Frontend (Pelanggan)
+Diagram berikut menggambarkan interaksi antara aktor dengan sistem utama.
+
+```mermaid
+usecaseDiagram
+    actor "Pelanggan" as User
+    actor "Administrator" as Admin
+    actor "Payment Gateway" as PG
+
+    package "Gerai Ayra System" {
+        usecase "Registrasi & Login" as UC1
+        usecase "Melihat Katalog Produk" as UC2
+        usecase "Mengelola Keranjang" as UC3
+        usecase "Checkout & Pembayaran" as UC4
+        usecase "Lacak Pesanan" as UC5
+        usecase "Ajukan Retur" as UC9
+        
+        usecase "Manajemen Produk & Stok" as UC6
+        usecase "Proses Pesanan (Update Status)" as UC7
+        usecase "Manajemen Voucher & Promo" as UC8
+        usecase "Analitik Dashboard" as UC10
+        usecase "Manajemen CRM (Leads)" as UC11
+    }
+
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    User --> UC9
+
+    Admin --> UC1
+    Admin --> UC6
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC10
+    Admin --> UC11
+    Admin --> UC9 : "Review Retur"
+
+    UC4 ..> PG : "Validasi Pembayaran"
+    UC7 ..> UC5 : "Update Info Tracking"
+```
+
+---
+
+## 4. Kebutuhan Fungsional (Functional Requirements)
+
+### 4.1 Modul Frontend (Pelanggan)
 
 | ID | Fitur Utama | Deskripsi & Kriteria Akseptasi | File/Komponen Terkait |
 | :--- | :--- | :--- | :--- |
@@ -39,7 +85,7 @@ Dokumen ini mendefinisikan kebutuhan sistem untuk platform E-commerce "Gerai Ayr
 | **FR-FE-007** | **Voucher** | Input kode promo di halaman cart untuk potongan harga. | `CartTotal.jsx`, `voucherController.js` |
 | **FR-FE-008** | **Retur Barang** | User dapat mengajukan retur untuk pesanan tertentu dari riwayat order. | `MyReturns.jsx`, `returnController.js` |
 
-### 3.2 Modul Admin (ERP & Manajemen)
+### 4.2 Modul Admin (ERP & Manajemen)
 
 | ID | Fitur Utama | Deskripsi & Kriteria Akseptasi | File/Komponen Terkait |
 | :--- | :--- | :--- | :--- |
@@ -52,7 +98,7 @@ Dokumen ini mendefinisikan kebutuhan sistem untuk platform E-commerce "Gerai Ayr
 | **FR-AD-007** | **Keuangan** | Pencatatan pengeluaran (Expense) dan rekap pemasukan (Income). | `Finance.jsx`, `expenseController.js` |
 | **FR-AD-008** | **Retur & QC** | Approval/Rejection untuk request retur barang dari user. | `Returns.jsx` |
 
-### 3.3 Modul Backend (API & Logika Bisnis)
+### 4.3 Modul Backend (API & Logika Bisnis)
 
 | ID | Modul API | Fungsi Utama | Keamanan & Validasi |
 | :--- | :--- | :--- | :--- |
@@ -64,7 +110,7 @@ Dokumen ini mendefinisikan kebutuhan sistem untuk platform E-commerce "Gerai Ayr
 
 ---
 
-## 4. Kebutuhan Non-Fungsional (Non-Functional Requirements)
+## 5. Kebutuhan Non-Fungsional (Non-Functional Requirements)
 
 | Kode | Kategori | Spesifikasi Kebutuhan |
 | :--- | :--- | :--- |
@@ -77,22 +123,22 @@ Dokumen ini mendefinisikan kebutuhan sistem untuk platform E-commerce "Gerai Ayr
 
 ---
 
-## 5. Ringkasan Alur Data (Expanded)
+## 6. Ringkasan Alur Data (Expanded)
 
-### 5.1 Autentikasi Pengguna
+### 6.1 Autentikasi Pengguna
 1.  **Frontend**: User input email & password -> POST `/api/user/login`.
 2.  **Backend**: Find user by email -> `bcrypt.compare` password.
 3.  **Result Success**: Generate JWT Token (payload: userId). Return Token.
 4.  **Frontend**: Simpan Token di LocalStorage & Set Auth Context (IsLoggedIn = True).
 
-### 5.2 Manajemen Produk (Admin)
+### 6.2 Manajemen Produk (Admin)
 1.  **Backend**: `adminAuth` Middleware memvalidasi Token Admin.
 2.  **Admin Add Product**:
     *   Frontend kirim `FormData` (Text data + Image Files).
     *   Backend (Multer) upload files ke Cloudinary -> dapat Secure URL.
     *   Backend simpan product doc di MongoDB (termasuk URL Gambar).
 
-### 5.3 Alur Pemesanan (Order Placement)
+### 6.3 Alur Pemesanan (Order Placement)
 1.  **User Checkout**: POST `/api/order/place` (Items, Address, Payment Method).
 2.  **Stock Validation**: Backend loop setiap item -> Cek `stock[size] >= qty`.
     *   *If Fail*: Return Error "Out of Stock".
@@ -100,20 +146,20 @@ Dokumen ini mendefinisikan kebutuhan sistem untuk platform E-commerce "Gerai Ayr
 4.  **Create Order**: Buat dokumen Order di DB dengan status `Payment: False` (jika Online) atau `Order Placed` (jika COD).
 5.  **Clean Up**: Hapus keranjang user (`user.cartData = {}`).
 
-### 5.4 Integrasi Pembayaran (Midtrans)
+### 6.4 Integrasi Pembayaran (Midtrans)
 1.  **Initiate**: Backend create Transaction ke Midtrans -> Dapat `snapToken`.
 2.  **Frontend**: Buka `window.snap.pay(snapToken)`.
 3.  **User Action**: User bayar via VA/E-Wallet/CC.
 4.  **Webhook**: Midtrans kirim notification ke Backend.
 5.  **Finalize**: Backend update status order `Payment: True` & `Status: Packing`.
 
-### 5.5 CRM Lifecycle Flow
+### 6.5 CRM Lifecycle Flow
 1.  **Lead Generation**: Admin/System catat calon customer di CRM Leads.
 2.  **Interaction**: Log setiap interaksi (Call/Email) di CRM.
 3.  **Conversion**: Jika Lead melakukan Register/Order -> Data dipindah/dilink ke Customer Profile.
 4.  **Retention**: Analisis history belanja untuk promosi/voucher personal.
 
-### 5.6 Return Management (RMA) Flow
+### 6.6 Return Management (RMA) Flow
 1.  **Request**: User pilih order -> Klik "Return" -> Upload Bukti Foto/Alasan.
 2.  **Review**: Admin terima notifikasi di Dashboard Returns -> Approve/Reject.
 3.  **Action**:

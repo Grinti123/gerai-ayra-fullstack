@@ -13,28 +13,28 @@ graph LR
     PG["💳 Payment Gateway"]
 
     %% System Boundary
-    subgraph "Sistem Gerai Ayra (Frontend)"
+    subgraph "Sistem Frontend Gerai Ayra"
         direction TB
         
-        %% Account Use Cases
+        %% Kelola Akun
         UC1([Registrasi Akun])
-        UC2([Login])
-        UC14([Lihat Profil])
-        UC15([Update Profil])
+        UC2([Login/Autentikasi])
+        UC14([Kelola Profil & Alamat])
         
-        %% Shop Use Cases
-        UC3([Browse Produk])
-        UC4([Cari Produk])
-        UC5([Lihat Detail])
-        UC6([Tambah ke Keranjang])
-        UC19([Tambah ke Wishlist])
-        UC18([Gunakan Voucher])
+        %% Belanja
+        UC3([Jelajah Katalog Produk])
+        UC4([Cari & Filter Produk])
+        UC5([Lihat Detail & Stok])
+        UC6([Kelola Keranjang Belanja])
+        UC19([Kelola Wishlist])
+        UC18([Terapkan Voucher Promo])
         
-        %% Checkout & Orders
+        %% Transaksi
         UC9([Checkout Pesanan])
+        UC10([Pilih Metode Pengiriman])
         UC11([Bayar Online])
         UC12([Lacak Pesanan])
-        UC13([Tulis Ulasan])
+        UC13([Berikan Ulasan])
         UC20([Ajukan Retur/Tukar])
     end
 
@@ -48,27 +48,26 @@ graph LR
     C --> UC19
     C --> UC20
 
-    %% Internal Relationships (Include/Extend)
-    UC3 -.->|<<extend>>| UC4
-    UC4 -.->|<<extend>>| UC5
+    %% Internal Include/Extend
+    UC4 -.->|<<extend>>| UC3
+    UC5 -.->|<<extend>>| UC3
     UC6 -.->|<<include>>| UC2
     UC6 -.->|<<extend>>| UC18
     
+    UC9 -->|<<include>>| UC10
     UC9 -->|<<include>>| UC11
+    
     UC12 -.->|<<extend>>| UC13
     UC12 -.->|<<extend>>| UC20
 
-    %% External System Relationship
+    %% System Interactions
     UC11 --> PG
     
     %% Styling
-    style C fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style PG fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style UC1 fill:#fff,stroke:#333,stroke-width:1px
-    style UC2 fill:#fff,stroke:#333,stroke-width:1px
-    style UC3 fill:#fff,stroke:#333,stroke-width:1px
-    style UC19 fill:#fff,stroke:#333,stroke-width:1px
-    style UC20 fill:#fff,stroke:#333,stroke-width:1px
+    style C fill:#f9f9f9,stroke:#333
+    style PG fill:#f9f9f9,stroke:#333
+    style UC9 fill:#e1f5fe,stroke:#01579b
+    style UC20 fill:#ffebee,stroke:#b71c1c
 ```
 
 ## 2. Admin Use Case Diagram
@@ -92,6 +91,7 @@ graph LR
         UA3([Kelola Produk & Kategori])
         UA7([Kelola Pesanan & Retur])
         UA15([Kelola Voucher])
+        UA25([Kelola User & Customer])
         
         %% CRM & Marketing
         UA21([Kelola Leads & Interaction])
@@ -111,6 +111,7 @@ graph LR
     A --> UA3
     A --> UA7
     A --> UA15
+    A --> UA25
     A --> UA21
     A --> UA22
     A --> UA11
@@ -126,6 +127,7 @@ graph LR
     style CL fill:#f9f9f9,stroke:#333,stroke-width:2px
     style UA1 fill:#fff,stroke:#333,stroke-width:1px
     style UA3 fill:#fff,stroke:#333,stroke-width:1px
+    style UA25 fill:#e0f7fa,stroke:#006064,stroke-width:1px
     style UA21 fill:#fff,stroke:#333,stroke-width:1px
     style UA22 fill:#fff,stroke:#333,stroke-width:1px
     style UA11 fill:#fff,stroke:#333,stroke-width:1px
