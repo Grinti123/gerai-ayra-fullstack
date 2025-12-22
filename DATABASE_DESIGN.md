@@ -11,23 +11,23 @@ Diagram berikut menggambarkan entitas utama dan relasinya dalam sistem.
 
 ```mermaid
 erDiagram
-    Users ||--o{ Orders : "places"
-    Users ||--o{ Reviews : "writes"
-    Users ||--o{ Returns : "requests"
-    Users ||--o{ Interactions : "has activity"
+    Users ||--o{ Orders : "melakukan"
+    Users ||--o{ Reviews : "menulis"
+    Users ||--o{ Returns : "mengajukan"
+    Users ||--o{ Interactions : "memiliki aktivitas"
     
-    Products ||--o{ Reviews : "receives"
-    Products ||--o{ OrderItems : "included in"
-    Categories ||--|{ Products : "classifies"
+    Products ||--o{ Reviews : "memiliki"
+    Products ||--o{ OrderItems : "termasuk dalam"
+    Categories ||--|{ Products : "mengelompokkan"
     
-    Orders ||--|{ OrderItems : "contains"
-    Orders ||--|| Returns : "has return request"
-    Shippings ||--o{ Orders : "delivers"
+    Orders ||--|{ OrderItems : "berisi"
+    Orders ||--|| Returns : "memiliki retur"
+    Shippings ||--o{ Orders : "mengirim"
     
-    Vouchers ||--o{ Products : "valid for"
-    Vouchers ||--o{ Categories : "valid for"
+    Vouchers ||--o{ Products : "berlaku untuk"
+    Vouchers ||--o{ Categories : "berlaku untuk"
     
-    Leads ||--o{ Interactions : "tracked in"
+    Leads ||--o{ Interactions : "tercatat di"
     
     Users {
         ObjectId _id PK
@@ -44,7 +44,7 @@ erDiagram
         String name
         String description
         Number price
-        Object stock "By Size"
+        Object stock "Per Ukuran"
         Array sizes
         String category FK
         Array image
@@ -90,7 +90,7 @@ erDiagram
         ObjectId _id PK
         String orderId FK
         String userId FK
-        String type "Return/Exchange"
+        String type "Retur/Tukar"
         String reason
         String status
         Array images
@@ -117,8 +117,8 @@ erDiagram
     
     Interactions {
         ObjectId _id PK
-        String referenceId FK "User/Lead ID"
-        String type "Call/Email"
+        String referenceId FK "ID User/Lead"
+        String type "Telp/Email"
         String notes
         Date date
     }
@@ -141,7 +141,7 @@ erDiagram
     Payments {
         ObjectId _id PK
         String name
-        String type "Manual/Auto"
+        String type "Manual/Otomatis"
         String details
         Boolean isActive
     }
